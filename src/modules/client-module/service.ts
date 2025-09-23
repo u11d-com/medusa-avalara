@@ -3,7 +3,7 @@ import { MedusaService } from "@medusajs/framework/utils";
 class ClientService extends MedusaService({}) {
   constructor(container, options) {
     super(container);
-    console.log(`ClientService ${options.foo}`);
+    console.log(`ClientService ${options.client.accountId}`);
     const cache = container.cache;
   }
 
