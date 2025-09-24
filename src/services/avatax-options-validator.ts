@@ -95,7 +95,7 @@ export class AvataxOptionsValidator {
   }
 
   static validateTaxCodes(
-    taxCodes?: AvataxPluginOptions["taxCodes"]
+    taxCodes?: object | null
   ): taxCodes is AvataxPluginOptions["taxCodes"] {
     if (taxCodes === undefined) {
       return true; // Tax codes are optional
@@ -105,7 +105,7 @@ export class AvataxOptionsValidator {
       throw new Error("AvaTax taxCodes must be an object if provided");
     }
 
-    if (taxCodes.default !== undefined) {
+    if ("default" in taxCodes) {
       if (
         typeof taxCodes.default !== "string" ||
         taxCodes.default.trim() === ""
@@ -116,7 +116,7 @@ export class AvataxOptionsValidator {
       }
     }
 
-    if (taxCodes.shipping !== undefined) {
+    if ("shipping" in taxCodes) {
       if (
         typeof taxCodes.shipping !== "string" ||
         taxCodes.shipping.trim() === ""
@@ -131,7 +131,7 @@ export class AvataxOptionsValidator {
   }
 
   static validateOptions(
-    options: AvataxPluginOptions
+    options: Record<string, unknown>
   ): options is AvataxPluginOptions {
     if (!options || typeof options !== "object") {
       throw new Error("AvaTax plugin options must be provided as an object");
@@ -147,7 +147,13 @@ export class AvataxOptionsValidator {
 
     this.validateClientOptions(options.client);
     this.validateShipFromAddress(options.shipFromAddress);
-    this.validateTaxCodes(options.taxCodes);
+
+    if (options.taxCodes !== undefined) {
+      if (typeof options.taxCodes !== "object") {
+        throw new Error("AvaTax taxCodes must be an object if provided");
+      }
+      this.validateTaxCodes(options.taxCodes);
+    }
 
     return true;
   }

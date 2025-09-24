@@ -1,8 +1,10 @@
 import {
+  CustomerDTO,
   ICacheService,
   ItemTaxCalculationLine,
   ItemTaxLineDTO,
   Logger,
+  OrderDTO,
   ShippingTaxCalculationLine,
   ShippingTaxLineDTO,
   TaxCalculationContext,
@@ -58,13 +60,14 @@ export class AvataxConverter {
         }
 
         const lineItem: LineItemModel = {
-          number: String(index + 1),
+          number: `PROD-${index + 1}`,
           quantity: Number(line_item.quantity),
           amount: Number(line_item.unit_price) * Number(line_item.quantity),
           description: `Product ${line_item.product_id}`,
           itemCode: line_item.product_id,
         };
 
+        // todo: product title
         const taxCode = await this.cache.get<string>(
           getAvalaraProductCacheKey(line_item.product_id)
         );
@@ -104,6 +107,52 @@ export class AvataxConverter {
     };
 
     return transactionModel;
+  }
+
+  private validateOrderAddress(
+    order: OrderDTO
+  ): TaxCalculationContext["address"] {
+    if (!order.shipping_address) {
+      throw new Error(`Order ${order.id} does not have a shipping address`);
+    }
+
+    if (!order.shipping_address.country_code) {
+      throw new Error(
+        `Order ${order.id} does not have a valid country code in the shipping address`
+      );
+    }
+
+    if (!order.shipping_address.country_code) {
+      throw new Error(
+        `Order ${order.id} does not have a valid country code in the shipping address`
+      );
+    }
+
+    return {
+      ...order.shipping_address,
+      // the following is a fallback for type safety, but should never happen due to the checks above
+      country_code: order.shipping_address.country_code || "us",
+    };
+  }
+
+  toTaxCalculationContext(
+    order: OrderDTO,
+    customer: CustomerDTO
+  ): TaxCalculationContext {
+    const address = this.validateOrderAddress(order);
+
+    const context: TaxCalculationContext = {
+      address,
+      customer: customer
+        ? {
+            id: customer.id,
+            email: customer.email,
+            customer_groups: [],
+          }
+        : undefined,
+    };
+
+    return context;
   }
 
   toAvataxAddress(address: TaxCalculationContext["address"]): AddressInfo {
