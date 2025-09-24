@@ -1,9 +1,13 @@
 import { LoaderOptions } from "@medusajs/framework/types";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
+import {
+  AvataxClientFactory,
+  AvataxConnectionValidator,
+  AvataxOptionsValidator,
+} from "../../services";
 import { asValue } from "awilix";
-import { AvataxClient, AvataxOptionsValidator } from "../../services";
 
-export default async function validateAvataxConnectionLoader({
+export default async function avataxLoader({
   options,
   container,
 }: LoaderOptions<Record<string, unknown>>) {
@@ -23,8 +27,13 @@ export default async function validateAvataxConnectionLoader({
     throw new Error("AvaTax client options are invalid");
   }
 
-  const client = new AvataxClient(logger, options.client);
+  const client = new AvataxClientFactory(logger, options.client).getClient();
+  const connectionValidator = new AvataxConnectionValidator(
+    logger,
+    client,
+    options.client
+  );
+  await connectionValidator.validateConnection();
 
-  // todo: move to workflow
-  await client.validateConnection();
+  container.register("avataxClient", asValue(client));
 }

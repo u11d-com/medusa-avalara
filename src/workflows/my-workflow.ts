@@ -4,12 +4,15 @@ import {
   StepResponse,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk";
-import ClientService from "../modules/client-module/service";
+import { AvataxClientFactoryService } from "../modules/avatax-client-factory/service";
+import { AVATAX_CLIENT_FACTORY_MODULE } from "../modules/avatax-client-factory";
 
 const step1 = createStep("step-1", async (_, { container }) => {
   console.log(container.registrations);
-  const client: ClientService = container.resolve("client_module");
-  client.myFunc();
+  const clientFactory: AvataxClientFactoryService = container.resolve(
+    AVATAX_CLIENT_FACTORY_MODULE
+  );
+  const client = clientFactory.getClient();
   return new StepResponse(`Hello from step one!`);
 });
 

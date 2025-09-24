@@ -9,23 +9,19 @@ import {
   ICacheService,
 } from "@medusajs/framework/types";
 import { DocumentType } from "avatax/lib/enums";
-import { AvataxPluginOptions } from "../../types";
+import AvaTaxClient from "avatax/lib/AvaTaxClient";
+import { AvataxPluginOptions, InjectedDependencies } from "../../types";
 import {
-  AvataxClient,
+  AvataxClientFactory,
   AvataxConverter,
   AvataxOptionsValidator,
 } from "../../services";
 import { AVALARA_IDENTIFIER } from "../../const";
 
-type InjectedDependencies = {
-  logger: Logger;
-  cache: ICacheService; // It's required to add `dependencies: [Modules.CACHE]` to `medusa-config` to use the cache module
-};
-
 export class AvataxTaxProvider implements ITaxProvider {
   private readonly logger: Logger;
   private readonly cache: ICacheService;
-  private readonly client: AvataxClient;
+  private readonly client: AvaTaxClient;
   private readonly converter: AvataxConverter;
 
   static identifier = AVALARA_IDENTIFIER;
@@ -51,7 +47,10 @@ export class AvataxTaxProvider implements ITaxProvider {
       this.options.taxCodes.throwErrorIfMissing = true;
     }
 
-    this.client = new AvataxClient(this.logger, this.options.client);
+    this.client = new AvataxClientFactory(
+      this.logger,
+      this.options.client
+    ).getClient();
     this.converter = new AvataxConverter(this.cache, this.logger, this.options);
 
     this.logger.info("AvataxTaxProvider initialized");
@@ -81,8 +80,7 @@ export class AvataxTaxProvider implements ITaxProvider {
       return this.getEmptyTaxLines(itemLines, shippingLines);
     }
 
-    const client = this.client.getClient();
-    if (!client) {
+    if (!this.client) {
       throw new Error("AvaTax client not available");
     }
 
@@ -94,7 +92,7 @@ export class AvataxTaxProvider implements ITaxProvider {
     );
 
     this.logger.debug("Sending tax calculation request to AvaTax");
-    const avataxTransaction = await client.createTransaction({
+    const avataxTransaction = await this.client.createTransaction({
       model: transactionModel,
     });
 
