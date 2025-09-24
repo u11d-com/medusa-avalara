@@ -29,6 +29,7 @@ export class AvalaraProductModuleService extends MedusaService({
 
   private readonly FEED_BATCH_SIZE = 1000;
   private readonly MAX_FEED_ITERATIONS = 10;
+  private readonly CACHE_TTL = 10 * 365 * 24 * 60 * 60; // 10 years
 
   constructor(container: InjectedDependencies) {
     super(container);
@@ -69,7 +70,8 @@ export class AvalaraProductModuleService extends MedusaService({
           products.map((product) =>
             this.cache.set(
               getAvalaraProductCacheKey(product.product_id),
-              product.tax_code
+              product.tax_code,
+              this.CACHE_TTL
             )
           )
         );

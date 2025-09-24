@@ -6,6 +6,7 @@ import { AvataxConverter } from "../../services";
 export class AvataxFactoryService extends MedusaService({}) {
   private readonly client: AvaTaxClient;
   private readonly converter: AvataxConverter;
+  private readonly options: AvataxPluginOptions;
 
   constructor(container: InjectedDependencies, options: AvataxPluginOptions) {
     super(container);
@@ -15,6 +16,7 @@ export class AvataxFactoryService extends MedusaService({}) {
       container.logger,
       options
     );
+    this.options = options;
   }
 
   getClient(): AvaTaxClient {
@@ -23,6 +25,10 @@ export class AvataxFactoryService extends MedusaService({}) {
 
   getConverter(): AvataxConverter {
     return this.converter;
+  }
+
+  getCompanyCode(): string {
+    return this.options.client.companyCode;
   }
 }
 

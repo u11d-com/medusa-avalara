@@ -33,7 +33,21 @@ export class AvataxConverter {
     itemLines: ItemTaxCalculationLine[],
     shippingLines: ShippingTaxCalculationLine[],
     context: TaxCalculationContext,
-    type: DocumentType
+    type: DocumentType.SalesOrder
+  ): Promise<CreateTransactionModel>;
+  async toTransactionModel(
+    itemLines: ItemTaxCalculationLine[],
+    shippingLines: ShippingTaxCalculationLine[],
+    context: TaxCalculationContext,
+    type: DocumentType.SalesInvoice,
+    orderId: string
+  ): Promise<CreateTransactionModel>;
+  async toTransactionModel(
+    itemLines: ItemTaxCalculationLine[],
+    shippingLines: ShippingTaxCalculationLine[],
+    context: TaxCalculationContext,
+    type: DocumentType,
+    orderId?: string
   ): Promise<CreateTransactionModel> {
     const transactionModel = new CreateTransactionModel();
 
@@ -43,7 +57,7 @@ export class AvataxConverter {
     transactionModel.customerCode = context.customer?.id || "GUEST";
     transactionModel.currencyCode =
       itemLines[0]?.line_item.currency_code?.toUpperCase() || "USD";
-    transactionModel.code = randomUUID();
+    transactionModel.code = orderId || randomUUID();
 
     if (context.customer?.email) {
       transactionModel.email = context.customer.email;

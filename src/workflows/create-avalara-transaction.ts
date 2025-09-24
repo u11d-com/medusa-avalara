@@ -9,7 +9,6 @@ import { DocumentType } from "avatax/lib/enums";
 import {
   ItemTaxCalculationLine,
   ShippingTaxCalculationLine,
-  TaxCalculationContext,
   Logger,
   OrderDTO,
   CustomerDTO,
@@ -17,26 +16,16 @@ import {
 import { AVATAX_FACTORY_MODULE } from "../modules/avatax-factory";
 import AvataxFactoryService from "../modules/avatax-factory/service";
 
-type CreateAvalaraTransactionInput = {
-  orderId: string;
-};
-
-type CreateAvalaraTransactionOutput = {
-  transactionId?: string;
-  success: boolean;
-  message: string;
-};
-
 const fetchDataStep = createStep(
   "fetch-order",
-  async (input: CreateAvalaraTransactionInput, { container }) => {
+  async (orderId: string, { container }) => {
     const logger: Logger = container.resolve(ContainerRegistrationKeys.LOGGER);
 
     const orderService = container.resolve("order");
     const customerService = container.resolve("customer");
 
-    logger.debug(`Fetching order with ID: ${input.orderId}`);
-    const order = await orderService.retrieveOrder(input.orderId, {
+    logger.debug(`Fetching order with ID: ${orderId}`);
+    const order = await orderService.retrieveOrder(orderId, {
       relations: [
         "items",
         "shipping_methods",
@@ -44,7 +33,7 @@ const fetchDataStep = createStep(
         "shipping_address",
       ],
     });
-    logger.debug(`Order ${input.orderId} fetched`);
+    logger.debug(`Order ${orderId} fetched`);
 
     if (!order.customer_id) {
       throw new Error(`Order ${order.id} does not have an associated customer`);
@@ -101,44 +90,34 @@ const createAvalaraTransactionStep = createStep(
         itemLines,
         shippingLines,
         context,
-        DocumentType.SalesInvoice
+        DocumentType.SalesInvoice,
+        order.id
       );
 
       const client = factory.getClient();
-      const response = await client.createTransaction({
+      await client.createTransaction({
         model: transactionModel,
       });
 
       logger.info(
-        `Successfully created Avalara transaction ${response.code} for order ${order.id}`
+        `Successfully created Avalara transaction for order ${order.id}`
       );
 
-      const result: CreateAvalaraTransactionOutput = {
-        transactionId: response.code,
-        success: true,
-        message: `Avalara transaction created successfully for order ${order.id}`,
-      };
-
-      return new StepResponse(result);
+      return new StepResponse(true);
     } catch (error) {
       logger.error(
         `Failed to create Avalara transaction for order ${order.id}: ${error.message}`
       );
 
-      const result: CreateAvalaraTransactionOutput = {
-        success: false,
-        message: `Failed to create Avalara transaction: ${error.message}`,
-      };
-
-      return new StepResponse(result);
+      return new StepResponse(false);
     }
   }
 );
 
 const createAvalaraTransactionWorkflow = createWorkflow(
   "create-avalara-transaction",
-  function (input: CreateAvalaraTransactionInput) {
-    const data = fetchDataStep(input);
+  function (orderId: string) {
+    const data = fetchDataStep(orderId);
     // todo: skip if avalara is not used for this region
     const result = createAvalaraTransactionStep(data);
 
