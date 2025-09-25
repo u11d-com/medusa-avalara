@@ -10,7 +10,7 @@ import {
 } from "@medusajs/framework/types";
 import { DocumentType } from "avatax/lib/enums";
 import AvaTaxClient from "avatax/lib/AvaTaxClient";
-import { AvataxPluginOptions, InjectedDependencies } from "../../types";
+import { AvalaraPluginOptions, InjectedDependencies } from "../../types";
 import {
   AvataxClientFactory,
   AvataxConverter,
@@ -28,7 +28,7 @@ export class AvataxTaxProvider implements ITaxProvider {
 
   constructor(
     container: InjectedDependencies,
-    private readonly options: AvataxPluginOptions
+    private readonly options: AvalaraPluginOptions
   ) {
     AvataxOptionsValidator.validateOptions(options);
 

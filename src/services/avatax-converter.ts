@@ -18,7 +18,7 @@ import {
 } from "avatax/lib/models";
 import { DocumentType } from "avatax/enums";
 import { randomUUID } from "crypto";
-import { AvataxPluginOptions } from "../types";
+import { AvalaraPluginOptions } from "../types";
 import { getAvalaraProductCacheKey } from "../utils";
 import { AVALARA_IDENTIFIER } from "../const";
 
@@ -26,7 +26,7 @@ export class AvataxConverter {
   constructor(
     private readonly cache: ICacheService,
     private readonly logger: Logger,
-    private readonly options: AvataxPluginOptions
+    private readonly options: AvalaraPluginOptions
   ) {}
 
   async toTransactionModel(

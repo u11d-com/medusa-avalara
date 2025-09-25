@@ -1,5 +1,5 @@
 import { AddressInfo } from "avatax/lib/models";
-import { AvataxClientOptions, AvataxPluginOptions } from "../types";
+import { AvataxClientOptions, AvalaraPluginOptions } from "../types";
 
 export class AvataxOptionsValidator {
   private static validateRequiredField(
@@ -96,7 +96,7 @@ export class AvataxOptionsValidator {
 
   static validateTaxCodes(
     taxCodes?: object | null
-  ): taxCodes is AvataxPluginOptions["taxCodes"] {
+  ): taxCodes is AvalaraPluginOptions["taxCodes"] {
     if (taxCodes === undefined) {
       return true; // Tax codes are optional
     }
@@ -132,7 +132,7 @@ export class AvataxOptionsValidator {
 
   static validateOptions(
     options: Record<string, unknown>
-  ): options is AvataxPluginOptions {
+  ): options is AvalaraPluginOptions {
     if (!options || typeof options !== "object") {
       throw new Error("AvaTax plugin options must be provided as an object");
     }

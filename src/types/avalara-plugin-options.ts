@@ -1,7 +1,7 @@
 import { AddressInfo } from "avatax/models";
 import { AvataxClientOptions } from "./avatax-client-options";
 
-export type AvataxPluginOptions = {
+export type AvalaraPluginOptions = {
   client: AvataxClientOptions;
   shipFromAddress: AddressInfo;
   taxCodes?: {
