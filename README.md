@@ -5,8 +5,7 @@
 <!-- Prettier is ignored here for correct rendering in GitHub -->
 <p align="center">
 <a href="https://u11d.com"><picture><source media="(prefers-color-scheme: dark)" srcset="https://u11d.com/static/u11d-white-b0b10621fc20805805f23cd6b8c349e0.svg"><source media="(prefers-color-scheme: light)" srcset="https://u11d.com/static/u11d-color-136ce418fbbb940b43748ef1bef30220.svg"><img alt="u11d logo" src="https://u11d.com/static/u11d-white-b0b10621fc20805805f23cd6b8c349e0.svg" width="120" height="40"></picture></a>
-<a href="https://www.medusajs.com"><picture><source media="(prefers-color-scheme: dark)" srcset="https://user-images.githubusercontent.com/59018053/229103275-b5e482bb-4601-46e6-8142-244f531cebdb.svg"><source media="(prefers-color-scheme: light)" srcset="https://user-images.githubusercontent.com/59018053/229103726-e5b529a3-9b3f-4970-8a1f-c6af37f087bf.svg"><img alt="Medusa logo" src="https://user-images.githubusercontent.com/59018053/229103726-e5b529a3-9b3f-4970-8a1f-c6af37f087bf.svg" width="120" height="40"></picture>
-</a>
+<a href="https://www.medusajs.com"><picture><source media="(prefers-color-scheme: dark)" srcset="https://user-images.githubusercontent.com/59018053/229103275-b5e482bb-4601-46e6-8142-244f531cebdb.svg"><source media="(prefers-color-scheme: light)" srcset="https://user-images.githubusercontent.com/59018053/229103726-e5b529a3-9b3f-4970-8a1f-c6af37f087bf.svg"><img alt="Medusa logo" src="https://user-images.githubusercontent.com/59018053/229103726-e5b529a3-9b3f-4970-8a1f-c6af37f087bf.svg" width="120" height="40"></picture></a>
 <a href="https://www.avalara.com"><img alt="Avalara logo" src="https://www.avalara.com/content/experience-fragments/avalara-com/navigation/global/header/us/master/_jcr_content/root/header_copy_copy_cop/image.cmpimage.svg/1743782062550/avalara-logo.svg" width="120" height="40"></a>
 </p>
 
