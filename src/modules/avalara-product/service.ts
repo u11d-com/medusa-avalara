@@ -28,8 +28,8 @@ export class AvalaraProductModuleService extends MedusaService({
   private readonly logger: Logger;
 
   private readonly FEED_BATCH_SIZE = 1000;
-  private readonly MAX_FEED_ITERATIONS = 10;
-  private readonly CACHE_TTL = 10 * 365 * 24 * 60 * 60; // 10 years
+  private readonly MAX_FEED_ITERATIONS = 1000; // max 1,000,000 records - to prevent infinite loops
+  private readonly CACHE_TTL = 10 * 365 * 24 * 60 * 60; // 10 years - `cache` requires TTL (-1 is invalid, 0 immediate expiry)
 
   constructor(container: InjectedDependencies) {
     super(container);
@@ -95,7 +95,7 @@ export class AvalaraProductModuleService extends MedusaService({
     }
   }
 
-  async upsertAvalaraProduct(
+  private async upsertAvalaraProduct(
     product_id: string,
     tax_code: string
   ): Promise<AvalaraProductModel> {
