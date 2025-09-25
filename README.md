@@ -152,14 +152,14 @@ After starting your Medusa server:
 
 ### Ship From Address (`shipFromAddress`)
 
-| Option       | Type     | Required | Description               |
-| ------------ | -------- | -------- | ------------------------- |
-| `line1`      | `string` | ✅       | Street address line 1     |
-| `line2`      | `string` | ❌       | Street address line 2     |
-| `city`       | `string` | ✅       | City name                 |
-| `region`     | `string` | ✅       | State/province code       |
-| `country`    | `string` | ✅       | ISO 2-letter country code |
-| `postalCode` | `string` | ✅       | Postal/ZIP code           |
+| Option       | Type     | Required             | Description               |
+| ------------ | -------- | -------------------- | ------------------------- |
+| `line1`      | `string` | ✅                   | Street address line 1     |
+| `line2`      | `string` | ❌                   | Street address line 2     |
+| `city`       | `string` | ✅                   | City name                 |
+| `region`     | `string` | ⚠️ (required for US) | State/province code       |
+| `country`    | `string` | ✅                   | ISO 2-letter country code |
+| `postalCode` | `string` | ✅                   | Postal/ZIP code           |
 
 ### Tax Codes (`taxCodes`)
 

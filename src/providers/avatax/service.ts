@@ -114,16 +114,16 @@ export class AvataxTaxProvider implements ITaxProvider {
     }
 
     const address = context.address;
-    if (
-      !(
-        address.city &&
-        address.province_code &&
-        address.postal_code &&
-        address.country_code
-      )
-    ) {
+    if (!(address.city && address.postal_code && address.country_code)) {
       this.logger.debug(
         `Missing required address fields: ${address.city}, ${address.province_code}, ${address.postal_code}, ${address.country_code}`
+      );
+      return false;
+    }
+
+    if (address.country_code === "US" && !address.province_code) {
+      this.logger.debug(
+        "Missing required address field: province_code for US address"
       );
       return false;
     }

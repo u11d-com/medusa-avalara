@@ -71,7 +71,7 @@ export class AvataxOptionsValidator {
       throw new Error("AvaTax shipFromAddress must be provided as an object");
     }
 
-    const requiredFields = ["line1", "city", "region", "country", "postalCode"];
+    const requiredFields = ["line1", "city", "country", "postalCode"];
     const missingFields = requiredFields.filter((field) => {
       const value = shipFromAddress[field as keyof AddressInfo];
       return !value || (typeof value === "string" && value.trim() === "");
@@ -82,6 +82,12 @@ export class AvataxOptionsValidator {
         `Missing required AvaTax shipFromAddress fields: ${missingFields.join(
           ", "
         )}`
+      );
+    }
+
+    if (shipFromAddress.country === "US" && !shipFromAddress.region) {
+      throw new Error(
+        "AvaTax shipFromAddress.region is required when country is US"
       );
     }
 
