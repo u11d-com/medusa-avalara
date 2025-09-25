@@ -1,6 +1,6 @@
 import { SubscriberArgs, type SubscriberConfig } from "@medusajs/framework";
-import createAvalaraTransactionWorkflow from "../workflows/create-avalara-transaction";
 import { logWorkflowResult } from "../utils";
+import commitAvalaraTransactionWorkflow from "../workflows/commit-avalara-transaction";
 
 export default async function orderCompletedHandler({
   event: { data },
@@ -10,7 +10,7 @@ export default async function orderCompletedHandler({
 
   logger.debug(`Order completed event received for order: ${data.id}`);
 
-  const result = await createAvalaraTransactionWorkflow(container).run({
+  const result = await commitAvalaraTransactionWorkflow(container).run({
     input: data.id,
   });
 
