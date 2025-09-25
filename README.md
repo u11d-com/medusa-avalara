@@ -14,7 +14,6 @@
   A Medusa plugin for integrating Avalara AvaTax as a tax provider, enabling automated tax calculations and compliance for your ecommerce store.
 </p>
 
-<!-- Prettier is ignored here for correct rendering in GitHub -->
 <p align="center">
   <a href="https://www.npmjs.com/package/@u11d/medusa-avalara"><img src="https://img.shields.io/npm/v/@u11d/medusa-avalara.svg" alt="NPM Version"/></a>
   <a href="https://www.npmjs.com/package/@u11d/medusa-avalara"><img src="https://img.shields.io/npm/dw/@u11d/medusa-avalara.svg" alt="NPM Weekly Downloads" /></a>
