@@ -3,21 +3,21 @@
 </h1>
 
 <p align="center">
-  <a href="https://u11d.com">
+  <a href="https://u11d.com" style="text-decoration: none;>
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="https://u11d.com/static/u11d-white-b0b10621fc20805805f23cd6b8c349e0.svg">
       <source media="(prefers-color-scheme: light)" srcset="https://u11d.com/static/u11d-color-136ce418fbbb940b43748ef1bef30220.svg">
       <img alt="u11d logo" src="https://u11d.com/static/u11d-white-b0b10621fc20805805f23cd6b8c349e0.svg" width="120" height="40">
     </picture>
   </a>
-  <a href="https://www.medusajs.com">
+  <a href="https://www.medusajs.com" style="text-decoration: none;>
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="https://user-images.githubusercontent.com/59018053/229103275-b5e482bb-4601-46e6-8142-244f531cebdb.svg">
       <source media="(prefers-color-scheme: light)" srcset="https://user-images.githubusercontent.com/59018053/229103726-e5b529a3-9b3f-4970-8a1f-c6af37f087bf.svg">
       <img alt="Medusa logo" src="https://user-images.githubusercontent.com/59018053/229103726-e5b529a3-9b3f-4970-8a1f-c6af37f087bf.svg" width="120" height="40">
     </picture>
   </a>
-  <a href="https://www.avalara.com">
+  <a href="https://www.avalara.com" style="text-decoration: none;>
     <img alt="Avalara logo" src="https://www.avalara.com/content/experience-fragments/avalara-com/navigation/global/header/us/master/_jcr_content/root/header_copy_copy_cop/image.cmpimage.svg/1743782062550/avalara-logo.svg" width="120" height="40">
   </a>
 </p>
@@ -27,19 +27,19 @@
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/@u11d/medusa-avalara">
+  <a href="https://www.npmjs.com/package/@u11d/medusa-avalara" style="text-decoration: none;">
     <img src="https://img.shields.io/npm/v/@u11d/medusa-avalara.svg" alt="NPM Version" />
   </a>
-  <a href="https://www.npmjs.com/package/@u11d/medusa-avalara">
+  <a href="https://www.npmjs.com/package/@u11d/medusa-avalara" style="text-decoration: none;">
     <img src="https://img.shields.io/npm/dw/@u11d/medusa-avalara.svg" alt="NPM Weekly Downloads" />
   </a>
-  <a href="https://github.com/u11d-com/medusa-avalara">
+  <a href="https://github.com/u11d-com/medusa-avalara" style="text-decoration: none;">
     <img src="https://img.shields.io/github/stars/u11d-com/medusa-avalara.svg" alt="GitHub Stars" />
   </a>
-  <a href="https://github.com/u11d-com/medusa-avalara/blob/main/LICENSE">
+  <a href="https://github.com/u11d-com/medusa-avalara/blob/main/LICENSE" style="text-decoration: none;">
     <img src="https://img.shields.io/badge/license-MIT-brightgreen.svg" alt="License" />
   </a>
-  <a href="https://docs.medusajs.com">
+  <a href="https://docs.medusajs.com" style="text-decoration: none;">
     <img src="https://img.shields.io/badge/Medusa-2.4.0+-9333ea.svg" alt="Medusa Version" />
   </a>
 </p>
@@ -117,6 +117,7 @@ module.exports = defineConfig({
 > - Each module must be registered separately due to Medusa's module isolation
 > - You can use environment variables instead of hardcoding options, especially important for credentials like `accountId` and `licenseKey`
 > - The example above will use `P0000000` for each product. See [Advanced Usage](#-advanced-usage) for assigning specific tax codes to individual products
+> - The `shipFromAddress` should reflect your Avalara configuration - ensure it matches the address configured in your Avalara account for accurate tax calculations
 
 ### Run Database Migration
 
@@ -206,15 +207,41 @@ Setting `throwErrorIfMissing: false` will:
 - Allow checkout to proceed even with missing configurations
 - May lead to incorrect tax calculations
 
-## 🏗️ Module Architecture
+## ⚙️ How it works?
 
-Due to Medusa's module isolation and dependency injection system, each module must be registered separately with its dependencies:
+The Medusa Avalara plugin integrates with Avalara's AvaTax service through a modular architecture:
 
-- **`avalara-product` module**: Manages product-specific tax codes
-- **`avatax-factory` module**: Creates and configures AvaTax client instances
-- **`avatax` provider**: Implements the Medusa tax provider interface
+### Core Components
 
-Each module requires the `CACHE` dependency for mapping products to Avalara tax codes.
+**modules/avalara-product**
+
+- Manages product-specific tax codes through the `AvalaraProduct` model and database migration
+- Used by the `/admin/avalara-products` API endpoint
+- Saves mapping of `product_id` → `avalara_tax_code` in cache for fast retrieval by the AvaTax provider
+
+**modules/avatax-factory**
+
+- Provides AvaTax client configured with plugin options
+- Validates plugin options and credentials
+- Validates communication with Avalara to ensure credentials are correct (validation happens in loader)
+
+**providers/avatax**
+
+- Tax calculation provider implementation (note: cannot use `avatax-factory` due to Medusa's module isolation)
+- Skips tax calculation if shipping address is not provided
+- Retrieves `avalara_tax_code` from cache; uses default tax code or throws error if not found
+- Makes API calls to AvaTax to create `SalesOrder` entities (temporary entities for dynamic cart tax calculations)
+- The `getTaxLines` method handles tax rate calculations using the AvaTax API
+
+### Order Lifecycle Integration
+
+**Subscribers and Workflows:**
+
+- **orderPlacedHandler**: Creates Sales Invoices (permanent entities representing finalized transactions in Avalara)
+- **orderCanceledHandler**: Voids the transaction in Avalara
+- **orderCompletedHandler**: Commits the transaction in Avalara
+
+This architecture ensures accurate tax calculations during checkout and proper transaction lifecycle management in Avalara's system.
 
 ## 🔧 Troubleshooting
 
@@ -233,6 +260,27 @@ npx medusa db:migrate
 ```
 
 This ensures the `avalara_product` table is created and the cache module is properly configured.
+
+### Tax calculations returning $0
+
+If you're seeing $0 tax amounts in your calculations, follow these troubleshooting steps:
+
+1. **Check application logs** for any error messages or warnings related to AvaTax API calls
+2. **Verify shipping address** - tax calculation is skipped if no valid shipping address is provided
+3. **Validate Avalara account configuration**:
+   - Ensure your company location is properly configured in your Avalara account
+   - Verify that tax jurisdictions are set up correctly for your business locations
+   - Check that your company has nexus configured for the relevant states/regions
+4. **Test tax calculation directly in Avalara**:
+   - Log into your Avalara account
+   - Use the AvaTax API testing tools to verify tax calculations work with your setup
+   - Test with the same addresses and product codes you're using in Medusa
+5. **Review tax codes**:
+   - Ensure products have valid Avalara tax codes assigned
+   - Verify that the tax codes are appropriate for your products and jurisdiction
+6. **Check environment settings**:
+   - Confirm you're using the correct environment (sandbox vs production)
+   - Verify your API credentials are valid and have the necessary permissions
 
 ## ✋ Need help?
 
