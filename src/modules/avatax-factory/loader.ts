@@ -3,7 +3,6 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import {
   AvataxClientFactory,
   AvataxConnectionValidator,
-  AvataxConverter,
   AvataxOptionsValidator,
 } from "../../services";
 import { asValue } from "awilix";
