@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  A Medusa plugin for integrating Avalara AvaTax as a tax provider, enabling automated tax calculations and compliance for your ecommerce store.
+  A Medusa plugin for integrating Avalara AvaTax as a tax provider, enabling automated tax calculations and compliance for your e-commerce store.
 </p>
 
 <p align="center">
@@ -21,9 +21,30 @@
   <a href="https://docs.medusajs.com"><img src="https://img.shields.io/badge/Medusa-2.4.0+-9333ea.svg" alt="Medusa Version" /></a>
 </p>
 
+## 📋 Table of Contents
+
+- [✨ Features](#-features)
+- [🚀 Quick Start](#-quick-start)
+- [📋 Configuration Options](#-configuration-options)
+- [🎯 Advanced Usage](#-advanced-usage)
+- [⚙️ How the plugin works?](#️-how-the-plugin-works)
+- [🔧 Troubleshooting](#-troubleshooting)
+- [✋ Need help?](#-need-help)
+- [🤝 Contributing](#-contributing)
+- [📄 License](#-license)
+
+## ✨ Features
+
+- **Real-time Tax Calculations**: Automatically calculate accurate taxes during checkout using Avalara's AvaTax API
+- **Order Transaction Management**: Create AvaTax transactions when orders are placed for proper tax recording
+- **Transaction Lifecycle Tracking**:
+  - Commit transactions when orders are completed/fulfilled
+  - Void transactions when orders are canceled
+- **Flexible Configuration**: Support for custom shipping addresses and tax codes
+
 ## 🚀 Quick Start
 
-### Installation
+### 1. Installation
 
 ```bash
 # npm
@@ -32,15 +53,15 @@ npm install @u11d/medusa-avalara
 yarn add @u11d/medusa-avalara
 ```
 
-### Basic Configuration
+### 2. Basic Medusa Config
 
-Add the plugin to your Medusa config file (`medusa-config.ts`):
+Add the plugin to your Medusa config file (`medusa-config.ts`) using the `withAvalaraPlugin` helper:
 
 ```typescript
-import { defineConfig, Modules } from "@medusajs/framework/utils";
-import { AvalaraPluginOptions } from "@u11d/medusa-avalara";
+import { defineConfig } from "@medusajs/framework/utils";
+import { withAvalaraPlugin, AvalaraPluginOptions } from "@u11d/medusa-avalara";
 
-const options: AvalaraPluginOptions = {
+const avalaraPluginOptions: AvalaraPluginOptions = {
   client: {
     accountId: "YOUR_ACCOUNT_ID",
     licenseKey: "YOUR_LICENSE_KEY",
@@ -61,42 +82,32 @@ const options: AvalaraPluginOptions = {
   },
 };
 
-module.exports = defineConfig({
-  plugins: ["@u11d/medusa-avalara"],
-  modules: [
+module.exports = defineConfig(
+  withAvalaraPlugin(
     {
-      resolve: "@u11d/medusa-avalara/modules/avalara-product",
-      dependencies: [Modules.CACHE],
-    },
-    {
-      resolve: "@u11d/medusa-avalara/modules/avatax-factory",
-      options,
-      dependencies: [Modules.CACHE],
-    },
-    {
-      resolve: "@medusajs/medusa/tax",
-      options: {
-        providers: [
-          {
-            resolve: "@u11d/medusa-avalara/providers/avatax",
-            options,
-          },
-        ],
+      projectConfig: {
+        // your project config
       },
-      dependencies: [Modules.CACHE],
+      plugins: [
+        // other plugins
+      ],
+      modules: [
+        // your modules
+      ],
     },
-  ],
-});
+    avalaraPluginOptions
+  )
+);
 ```
 
 > **Important Notes:**
 >
-> - Each module must be registered separately due to Medusa's module isolation
+> - The `withAvalaraPlugin` wrapper handles plugin modules registration and dependency injection automatically. See [Manual Module Registration](#manual-module-registration) section if you need to understand what the helper does or configure modules manually
 > - You can use environment variables instead of hardcoding options, especially important for credentials like `accountId` and `licenseKey`
-> - The example above will use `P0000000` for each product. See [Advanced Usage](#-advanced-usage) for assigning specific tax codes to individual products
+> - The example above will use `PC040100` for each product. See [Advanced Usage](#-advanced-usage) for assigning specific tax codes to individual products
 > - The `shipFromAddress` should reflect your Avalara configuration - ensure it matches the address configured in your Avalara account for accurate tax calculations
 
-### Run Database Migration
+### 3. Run Database Migration
 
 After configuring your Medusa setup, run the database migration to create the required tables:
 
@@ -104,11 +115,11 @@ After configuring your Medusa setup, run the database migration to create the re
 npx medusa db:migrate
 ```
 
-### Enable AvaTax Provider
+### 4. Enable AvaTax Provider
 
 After starting your Medusa server:
 
-1. Go to your admin panel
+1. Go to your admin panel (locally available at `http://localhost:9000/app` by default)
 2. Navigate to **Settings** > **Tax Regions**
 3. Select a tax region and **edit** it
 4. Select **Avalara** as your tax provider
@@ -118,15 +129,15 @@ After starting your Medusa server:
 
 ### Client Options (`client`)
 
-| Option        | Type                        | Required | Default              | Description                 |
-| ------------- | --------------------------- | -------- | -------------------- | --------------------------- |
-| `accountId`   | `string`                    | ✅       | -                    | Your Avalara account ID     |
-| `licenseKey`  | `string`                    | ✅       | -                    | Your Avalara license key    |
-| `environment` | `"sandbox" \| "production"` | ✅       | -                    | AvaTax environment          |
-| `companyCode` | `string`                    | ✅       | -                    | Your company code in AvaTax |
-| `appName`     | `string`                    | ❌       | `MedusaAvaTaxPlugin` | Custom app name             |
-| `appVersion`  | `string`                    | ❌       | Plugin version       | Custom app version          |
-| `machineName` | `string`                    | ❌       | `MedusaServer`       | Machine identifier          |
+| Option        | Type                        | Required | Description                 |
+| ------------- | --------------------------- | -------- | --------------------------- |
+| `accountId`   | `string`                    | ✅       | Your Avalara account ID     |
+| `licenseKey`  | `string`                    | ✅       | Your Avalara license key    |
+| `environment` | `"sandbox" \| "production"` | ✅       | AvaTax environment          |
+| `companyCode` | `string`                    | ✅       | Your company code in AvaTax |
+| `appName`     | `string`                    | ❌       | Custom app name             |
+| `appVersion`  | `string`                    | ❌       | Custom app version          |
+| `machineName` | `string`                    | ❌       | Machine identifier          |
 
 ### Ship From Address (`shipFromAddress`)
 
@@ -151,7 +162,9 @@ After starting your Medusa server:
 
 ### Using Different Tax Codes for Products
 
-By default, all products will use the `taxCodes.default` value. To assign specific Avalara tax codes to individual products:
+In most e-commerce scenarios, different products require different tax codes based on their category, material, or intended use. The plugin uses the `avalara_product` table to determine which specific Avalara tax code should be applied to each product during tax calculations. You can manage these product-specific tax codes either by updating the database table directly or by using the provided admin API endpoint.
+
+By default, all products will use the `taxCodes.default` value. Make `PUT /admin/avalara-products` to assign specific Avalara tax codes to individual products.
 
 ```bash
 curl -X PUT http://localhost:9000/admin/avalara-products
@@ -184,7 +197,49 @@ Setting `throwErrorIfMissing: false` will:
 - Allow checkout to proceed even with missing configurations
 - May lead to incorrect tax calculations
 
-## ⚙️ How it works?
+### Manual Module Registration
+
+If you prefer to configure modules manually without using the `withAvalaraPlugin` wrapper, you can register each module individually:
+
+```typescript
+import { defineConfig, Modules } from "@medusajs/framework/utils";
+import { AvalaraPluginOptions } from "@u11d/medusa-avalara";
+
+const options: AvalaraPluginOptions = {
+  // your options here
+};
+
+module.exports = defineConfig({
+  plugins: ["@u11d/medusa-avalara"],
+  modules: [
+    {
+      resolve: "@u11d/medusa-avalara/modules/avalara-product",
+      dependencies: [Modules.CACHE],
+    },
+    {
+      resolve: "@u11d/medusa-avalara/modules/avatax-factory",
+      options,
+      dependencies: [Modules.CACHE],
+    },
+    {
+      resolve: "@medusajs/medusa/tax",
+      options: {
+        providers: [
+          {
+            resolve: "@u11d/medusa-avalara/providers/avatax",
+            options,
+          },
+        ],
+      },
+      dependencies: [Modules.CACHE],
+    },
+  ],
+});
+```
+
+> **Note:** Manual registration requires careful attention to module dependencies and isolation. The `withAvalaraPlugin` wrapper is recommended as it handles these complexities automatically.
+
+## ⚙️ How the plugin works?
 
 The Medusa Avalara plugin integrates with Avalara's AvaTax service through a modular architecture:
 
@@ -204,7 +259,7 @@ The Medusa Avalara plugin integrates with Avalara's AvaTax service through a mod
 
 **providers/avatax**
 
-- Tax calculation provider implementation (note: cannot use `avatax-factory` due to Medusa's module isolation)
+- Tax calculation provider implementation (separate from `avatax-factory` due to Medusa's module isolation requirements)
 - Skips tax calculation if shipping address is not provided
 - Retrieves `avalara_tax_code` from cache; uses default tax code or throws error if not found
 - Makes API calls to AvaTax to create `SalesOrder` entities (temporary entities for dynamic cart tax calculations)
@@ -218,7 +273,7 @@ The Medusa Avalara plugin integrates with Avalara's AvaTax service through a mod
 - **orderCanceledHandler**: Voids the transaction in Avalara
 - **orderCompletedHandler**: Commits the transaction in Avalara
 
-This architecture ensures accurate tax calculations during checkout and proper transaction lifecycle management in Avalara's system.
+This architecture ensures accurate tax calculations during checkout and proper transaction lifecycle management in Avalara's system. The `withAvalaraPlugin` wrapper simplifies the setup by automatically configuring all these modules with proper dependencies and isolation.
 
 ## 🔧 Troubleshooting
 

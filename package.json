@@ -8,7 +8,10 @@
     ".medusa/server"
   ],
   "exports": {
-    ".": "./.medusa/server/src/index.*",
+    ".": {
+      "types": "./.medusa/server/src/index.d.ts",
+      "default": "./.medusa/server/src/index.js"
+    },
     "./package.json": "./package.json",
     "./workflows": "./.medusa/server/src/workflows/index.js",
     "./.medusa/server/src/modules/*": "./.medusa/server/src/modules/*/index.js",
