@@ -7,6 +7,5 @@ export type AvalaraPluginOptions = {
   taxCodes?: {
     default?: string;
     shipping?: string;
-    throwErrorIfMissing?: boolean;
   };
 };

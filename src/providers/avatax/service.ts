@@ -43,10 +43,6 @@ export class AvataxTaxProvider implements ITaxProvider {
       this.options.taxCodes.shipping = "FR020100";
     }
 
-    if (typeof this.options.taxCodes.throwErrorIfMissing !== "boolean") {
-      this.options.taxCodes.throwErrorIfMissing = true;
-    }
-
     this.client = new AvataxClientFactory(
       this.logger,
       this.options.client

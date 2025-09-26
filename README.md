@@ -78,7 +78,6 @@ const avalaraPluginOptions: AvalaraPluginOptions = {
   taxCodes: {
     shipping: "FR020100",
     default: "PC040100", // Clothing and related products (business-to-customer)-general
-    throwErrorIfMissing: false,
   },
 };
 
@@ -152,11 +151,10 @@ After starting your Medusa server:
 
 ### Tax Codes (`taxCodes`)
 
-| Option                | Type      | Required | Default      | Description                               |
-| --------------------- | --------- | -------- | ------------ | ----------------------------------------- |
-| `default`             | `string`  | ❌       | `"P0000000"` | Default tax code for products             |
-| `shipping`            | `string`  | ❌       | `"FR020100"` | Tax code for shipping                     |
-| `throwErrorIfMissing` | `boolean` | ❌       | `true`       | Throw error if product tax code not found |
+| Option     | Type     | Required | Default      | Description                   |
+| ---------- | -------- | -------- | ------------ | ----------------------------- |
+| `default`  | `string` | ❌       | `"P0000000"` | Default tax code for products |
+| `shipping` | `string` | ❌       | `"FR020100"` | Tax code for shipping         |
 
 ## 🎯 Advanced Usage
 
@@ -182,20 +180,6 @@ curl -X PUT http://localhost:9000/admin/avalara-products
     ]
   }'
 ```
-
-### Error Handling
-
-Setting `throwErrorIfMissing: true` (recommended) ensures that:
-
-- Missing tax codes for products will throw errors during checkout
-- You'll be notified of configuration issues early
-- Tax compliance is maintained
-
-Setting `throwErrorIfMissing: false` will:
-
-- Use the default tax code for products without specific codes
-- Allow checkout to proceed even with missing configurations
-- May lead to incorrect tax calculations
 
 ### Manual Module Registration
 

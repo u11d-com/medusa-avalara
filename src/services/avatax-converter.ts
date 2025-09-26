@@ -89,12 +89,6 @@ export class AvataxConverter {
           `Tax code for product ${line_item.product_id}: ${taxCode}`
         );
 
-        if (!taxCode && this.options.taxCodes?.throwErrorIfMissing) {
-          throw new Error(
-            `Missing tax code for product ${line_item.product_id}`
-          );
-        }
-
         lineItem.taxCode = taxCode || this.options.taxCodes?.default;
 
         if (!lineItem.taxCode) {
