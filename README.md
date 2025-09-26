@@ -18,7 +18,7 @@
   <a href="https://www.npmjs.com/package/@u11d/medusa-avalara"><img src="https://img.shields.io/npm/dw/@u11d/medusa-avalara.svg" alt="NPM Weekly Downloads" /></a>
   <a href="https://github.com/u11d-com/medusa-avalara"><img src="https://img.shields.io/github/stars/u11d-com/medusa-avalara.svg" alt="GitHub Stars" /></a>
   <a href="https://github.com/u11d-com/medusa-avalara/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-brightgreen.svg" alt="License" /></a>
-  <a href="https://docs.medusajs.com"><img src="https://img.shields.io/badge/Medusa-2.4.0+-9333ea.svg" alt="Medusa Version" /></a>
+  <a href="https://docs.medusajs.com"><img src="https://img.shields.io/badge/Medusa-2.8.0+-9333ea.svg" alt="Medusa Version" /></a>
 </p>
 
 ## 📋 Table of Contents

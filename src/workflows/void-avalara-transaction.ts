@@ -3,12 +3,14 @@ import {
   createWorkflow,
   StepResponse,
   WorkflowResponse,
+  when,
 } from "@medusajs/framework/workflows-sdk";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import { DocumentType, VoidReasonCode } from "avatax/lib/enums";
 import { Logger } from "@medusajs/framework/types";
 import { AVATAX_FACTORY_MODULE } from "../modules/avatax-factory";
 import AvataxFactoryService from "../modules/avatax-factory/service";
+import { checkAvalaraRegionStep } from "./steps/check-avalara-region";
 
 const voidAvalaraTransactionStep = createStep(
   "void-avalara-transaction",
@@ -50,10 +52,16 @@ const voidAvalaraTransactionStep = createStep(
 const voidAvalaraTransactionWorkflow = createWorkflow(
   "void-avalara-transaction",
   function (orderId: string) {
-    // todo: skip if avalara is not used for this region
-    const result = voidAvalaraTransactionStep(orderId);
+    const isAvalaraConfigured = checkAvalaraRegionStep(orderId);
 
-    return new WorkflowResponse(result);
+    const result = when(
+      isAvalaraConfigured,
+      (isConfigured) => isConfigured
+    ).then(() => {
+      return voidAvalaraTransactionStep(orderId);
+    });
+
+    return new WorkflowResponse(result || false);
   }
 );
 
