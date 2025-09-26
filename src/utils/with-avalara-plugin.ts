@@ -6,7 +6,8 @@ export const withAvalaraPlugin = (
   config: InputConfig,
   options: AvalaraPluginOptions
 ) => {
-  if (!Array.isArray(config.modules)) {
+  const modules = config.modules || [];
+  if (!Array.isArray(modules)) {
     throw new Error("Modules in the config must be an array");
   }
 
@@ -14,7 +15,7 @@ export const withAvalaraPlugin = (
     ...config,
     plugins: [...(config.plugins || []), "@u11d/medusa-avalara"],
     modules: [
-      ...(config.modules || []),
+      ...modules,
       {
         resolve: "@u11d/medusa-avalara/modules/avalara-product",
         dependencies: [Modules.CACHE],
