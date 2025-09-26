@@ -162,6 +162,8 @@ After starting your Medusa server:
 
 In most e-commerce scenarios, different products require different tax codes based on their category, material, or intended use. The plugin uses the `avalara_product` table to determine which specific Avalara tax code should be applied to each product during tax calculations. You can manage these product-specific tax codes either by updating the database table directly or by using the provided admin API endpoint.
 
+You can find the complete list of available Avalara tax codes at: https://taxcode.avatax.avalara.com/
+
 By default, all products will use the `taxCodes.default` value. Make `PUT /admin/avalara-products` to assign specific Avalara tax codes to individual products.
 
 ```bash
