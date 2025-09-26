@@ -97,6 +97,12 @@ export class AvataxConverter {
 
         lineItem.taxCode = taxCode || this.options.taxCodes?.default;
 
+        if (!lineItem.taxCode) {
+          throw new Error(
+            `No tax code found for product ${line_item.product_id} and no default tax code set`
+          );
+        }
+
         lines.push(lineItem);
       })
     );
