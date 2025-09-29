@@ -164,20 +164,40 @@ In most e-commerce scenarios, different products require different tax codes bas
 
 You can find the complete list of available Avalara tax codes at: https://taxcode.avatax.avalara.com/
 
-By default, all products will use the `taxCodes.default` value. Make `PUT /admin/avalara-products` to assign specific Avalara tax codes to individual products.
+By default, all products will use the `taxCodes.default` value. To assign specific Avalara tax codes to individual products, you'll need to authenticate and make a `PUT` request to `/admin/avalara-products`.
+
+**Step 1: Get Authentication Token**
+
+First, authenticate to get a Bearer token:
 
 ```bash
-curl -X PUT http://localhost:9000/admin/avalara-products
-  -H "Content-Type: application/json"
+curl -X POST http://localhost:9000/auth/user/emailpass \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "your_admin_email@example.com",
+    "password": "your_admin_password"
+  }'
+```
+
+This will return a response containing a `token` field. Copy the token value.
+
+**Step 2: Update Product Tax Codes**
+
+Use the token to update product tax codes:
+
+```bash
+curl -X PUT http://localhost:9000/admin/avalara-products \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN_HERE" \
   -d '{
     "avalara_products": [
       {
         "product_id": "prod_123",
-        "avalara_tax_code": "PC040100"
+        "tax_code": "PC040100"
       },
       {
         "product_id": "prod_456",
-        "avalara_tax_code": "PS081000"
+        "tax_code": "PS081000"
       }
     ]
   }'
