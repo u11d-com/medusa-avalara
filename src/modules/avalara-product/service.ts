@@ -45,7 +45,7 @@ export class AvalaraProductModuleService extends MedusaService({
     }
   }
 
-  private async feedCache() {
+  async feedCache() {
     this.logger.debug("Feeding Avalara product cache...");
     let total = 0;
     try {
