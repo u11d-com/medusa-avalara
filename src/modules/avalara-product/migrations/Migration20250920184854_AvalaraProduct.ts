@@ -6,13 +6,13 @@ export class Migration20250920184854_AvalaraProduct extends Migration {
       `create table if not exists "avalara_product" ("id" text not null, "tax_code" text not null, "product_id" text not null, "created_at" timestamptz not null default now(), "updated_at" timestamptz not null default now(), "deleted_at" timestamptz null, constraint "avalara_product_pkey" primary key ("id"));`
     );
     this.addSql(
-      `CREATE INDEX IF NOT EXISTS "IDX_avalara_product_id" ON "avalara_product" (product_id) WHERE deleted_at IS NULL;`
+      `CREATE INDEX IF NOT EXISTS "IDX_avalara_product_product_id" ON "avalara_product" (product_id) WHERE deleted_at IS NULL;`
     );
     this.addSql(
       `CREATE INDEX IF NOT EXISTS "IDX_avalara_product_deleted_at" ON "avalara_product" (deleted_at) WHERE deleted_at IS NULL;`
     );
     this.addSql(
-      `CREATE UNIQUE INDEX IF NOT EXISTS "UQ_avalara_product_id_active" ON "avalara_product" (product_id) WHERE deleted_at IS NULL;`
+      `CREATE UNIQUE INDEX IF NOT EXISTS "UQ_avalara_product_product_id_active" ON "avalara_product" (product_id) WHERE deleted_at IS NULL;`
     );
   }
 
