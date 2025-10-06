@@ -326,11 +326,9 @@ If you encounter any issues or need assistance with this plugin, please visit ou
 
 Need expert assistance or want our team to support your Medusa project? We're here to help! Contact us at [https://u11d.com/contact/](https://u11d.com/contact/) for professional support and consultation services.
 
-<!--
 ## 📖 Learn More
 
-Read our comprehensive blog article about integrating Avalara with Medusa: **URL coming soon**
--->
+Read our comprehensive blog article about integrating Avalara with Medusa: [https://u11d.com/blog/automated-tax-calculations-medusa-avalara-integration](https://u11d.com/blog/automated-tax-calculations-medusa-avalara-integration/)
 
 ## 🤝 Contributing
 
