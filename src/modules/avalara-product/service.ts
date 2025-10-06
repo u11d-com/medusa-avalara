@@ -1,8 +1,6 @@
 import { MedusaService } from "@medusajs/framework/utils";
-import { ICacheService } from "@medusajs/framework/types";
-import { Logger } from "@medusajs/medusa";
 import { AvalaraProduct, AvalaraProductModel } from "./models/avalara-product";
-import { getAvalaraProductCacheKey } from "../../utils";
+import { MedusaContainer } from "@medusajs/framework";
 
 export type BulkUpdateRequest = {
   product_id: string;
@@ -16,83 +14,14 @@ export type BulkUpdateResult = {
   data?: AvalaraProductModel;
 };
 
-type InjectedDependencies = {
-  cache: ICacheService;
-  logger: Logger;
-};
-
 export class AvalaraProductModuleService extends MedusaService({
   AvalaraProduct,
 }) {
-  private readonly cache: ICacheService;
-  private readonly logger: Logger;
+  private readonly container: MedusaContainer;
 
-  private readonly FEED_BATCH_SIZE = 1000;
-  private readonly MAX_FEED_ITERATIONS = 1000; // max 1,000,000 records - to prevent infinite loops
-  private readonly CACHE_TTL = 30 * 24 * 60 * 60; // 30 days - `cache` requires TTL (-1 is invalid, 0 immediate expiry)
-
-  constructor(container: InjectedDependencies) {
+  constructor(container: MedusaContainer) {
     super(container);
-    this.logger = container.logger;
-
-    try {
-      this.cache = container.cache;
-      this.feedCache();
-    } catch (error) {
-      this.logger.warn(
-        `Unable to feed Avalara product cache. Error: ${error.message}. Please make sure cache module is injected to the module via medusa-config.`
-      );
-    }
-  }
-
-  async feedCache() {
-    this.logger.debug("Feeding Avalara product cache...");
-    let total = 0;
-    try {
-      let skip = 0;
-      let i = 0;
-      let hasMore = true;
-
-      while (hasMore && i < this.MAX_FEED_ITERATIONS) {
-        i += 1;
-        const products = await this.listAvalaraProducts(undefined, {
-          order: { created_at: "DESC" },
-          skip,
-          take: this.FEED_BATCH_SIZE,
-        });
-
-        if (products.length === 0) {
-          hasMore = false;
-          break;
-        }
-
-        await Promise.all(
-          products.map((product) =>
-            this.cache.set(
-              getAvalaraProductCacheKey(product.product_id),
-              product.tax_code,
-              this.CACHE_TTL
-            )
-          )
-        );
-
-        this.logger.debug(
-          `Fed ${products.length} Avalara products into cache (iteration ${i})`
-        );
-
-        skip += this.FEED_BATCH_SIZE;
-        total += products.length;
-        hasMore = products.length === this.FEED_BATCH_SIZE;
-      }
-
-      this.logger.info(
-        `Finished feeding Avalara product cache. Total products fed: ${total}`
-      );
-    } catch (error) {
-      this.logger.error(
-        `Failed to feed cache. Error: ${error.message}. Please make sure migration adding avalara_product table has been run and cache module is injected to the module via medusa-config.`
-      );
-    }
+    this.container = container;
   }
 
   private async upsertAvalaraProduct(
@@ -120,8 +49,6 @@ export class AvalaraProductModuleService extends MedusaService({
         tax_code,
       });
     }
-
-    await this.feedCache();
 
     return result;
   }
@@ -160,8 +87,6 @@ export class AvalaraProductModuleService extends MedusaService({
         });
       }
     }
-
-    await this.feedCache();
 
     return results;
   }

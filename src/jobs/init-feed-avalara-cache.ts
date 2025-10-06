@@ -1,7 +1,9 @@
 import { MedusaContainer } from "@medusajs/framework/types";
 import feedAvalaraProductCacheWorkflow from "../workflows/feed-avalara-product-cache";
 
-export default async function feedAvalaraCacheJob(container: MedusaContainer) {
+export default async function initFeedAvalaraCacheJob(
+  container: MedusaContainer
+) {
   const logger = container.resolve("logger");
   logger.debug(`Starting ${config.name} job...`);
 
@@ -10,7 +12,9 @@ export default async function feedAvalaraCacheJob(container: MedusaContainer) {
   logger.debug(`${config.name} job completed.`);
 }
 
+// on startup
 export const config = {
-  name: "feed-avalara-cache",
-  schedule: "0 0 * * *", // Every midnight
+  name: "init-feed-avalara-cache",
+  schedule: "*/10 * * * * *",
+  numberOfExecutions: 1,
 };

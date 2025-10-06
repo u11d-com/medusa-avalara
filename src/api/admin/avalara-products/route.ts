@@ -5,6 +5,7 @@ import {
 } from "../../../modules/avalara-product/service";
 import { AVALARA_PRODUCT_MODULE } from "../../../modules/avalara-product";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
+import feedAvalaraProductCacheWorkflow from "../../../workflows/feed-avalara-product-cache";
 
 type BulkUpdateAvalaraProductRequest = {
   avalara_products: BulkUpdateRequest[];
@@ -92,6 +93,8 @@ export async function PUT(
 
     const successCount = results.filter((r) => r.success).length;
     const errorCount = results.filter((r) => r.error).length;
+
+    await feedAvalaraProductCacheWorkflow(req.scope).run();
 
     logger.info(
       `PUT /admin/avalara-products - Bulk update completed: ${successCount} successful, ${errorCount} failed`

@@ -18,7 +18,7 @@ import {
 } from "avatax/lib/models";
 import { DocumentType } from "avatax/enums";
 import { randomUUID } from "crypto";
-import { AvalaraPluginOptions } from "../types";
+import { AvalaraPluginOptions, AvalaraProductCache } from "../types";
 import { getAvalaraProductCacheKey } from "../utils";
 import { AVALARA_IDENTIFIER } from "../const";
 
@@ -77,19 +77,21 @@ export class AvataxConverter {
           number: `PROD-${index + 1}`,
           quantity: Number(line_item.quantity),
           amount: Number(line_item.unit_price) * Number(line_item.quantity),
-          description: `Product ${line_item.product_id}`,
           itemCode: line_item.product_id,
         };
 
-        // todo: product title
-        const taxCode = await this.cache.get<string>(
+        const avalaraProductCache = await this.cache.get<AvalaraProductCache>(
           getAvalaraProductCacheKey(line_item.product_id)
         );
         this.logger.debug(
-          `Tax code for product ${line_item.product_id}: ${taxCode}`
+          `Tax code for product ${line_item.product_id} (${avalaraProductCache?.title}): ${avalaraProductCache?.tax_code}`
         );
 
-        lineItem.taxCode = taxCode || this.options.taxCodes?.default;
+        lineItem.taxCode =
+          avalaraProductCache?.tax_code || this.options.taxCodes?.default;
+
+        lineItem.description =
+          avalaraProductCache?.title || `Product ${line_item.product_id}`;
 
         if (!lineItem.taxCode) {
           throw new Error(
