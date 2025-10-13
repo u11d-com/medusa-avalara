@@ -19,7 +19,10 @@ import {
 import { DocumentType } from "avatax/enums";
 import { randomUUID } from "crypto";
 import { AvalaraPluginOptions, AvalaraProductCache } from "../types";
-import { getAvalaraProductCacheKey } from "../utils";
+import {
+  getAvalaraProductCacheKey,
+  getAvalaraTaxIncludedCacheKey,
+} from "../utils";
 import { AVALARA_IDENTIFIER } from "../const";
 
 export class AvataxConverter {
@@ -63,6 +66,11 @@ export class AvataxConverter {
       transactionModel.email = context.customer.email;
     }
 
+    const taxIncluded =
+      (await this.cache.get<boolean>(
+        getAvalaraTaxIncludedCacheKey(context.address.country_code)
+      )) || false;
+
     const lines: LineItemModel[] = [];
 
     await Promise.all(
@@ -78,6 +86,7 @@ export class AvataxConverter {
           quantity: Number(line_item.quantity),
           amount: Number(line_item.unit_price) * Number(line_item.quantity),
           itemCode: line_item.product_id,
+          taxIncluded,
         };
 
         const avalaraProductCache = await this.cache.get<AvalaraProductCache>(
@@ -110,6 +119,7 @@ export class AvataxConverter {
         amount: Number(shippingLine.shipping_line.unit_price || 0),
         description: "Shipping",
         taxCode: this.options.taxCodes?.shipping,
+        taxIncluded,
       };
 
       lines.push(shippingLineItem);
