@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  A [Medusa](https://www.medusajs.com) plugin for integrating [Avalara AvaTax](https://www.avalara.com) as a tax provider, enabling automated tax calculations and compliance for your e-commerce store. Created and maintained by [u11d](https://u11d.com).
+  A <a href="https://www.medusajs.com">Medusa</a> plugin for integrating <a href="https://www.avalara.com">Avalara AvaTax</a> as a tax provider, enabling automated tax calculations and compliance for your e-commerce store. Created and maintained by <a href="https://u11d.com">u11d</a>.
 </p>
 
 <p align="center">
