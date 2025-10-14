@@ -1,26 +1,31 @@
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
-import feedAvalaraProductCacheWorkflow from "../../../../workflows/feed-avalara-product-cache";
+import feedAvalaraCacheWorkflow from "../../../../workflows/feed-avalara-cache";
 
 export async function POST(
   req: MedusaRequest,
   res: MedusaResponse
 ): Promise<void> {
   const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER);
+
   try {
     logger.debug(
-      `POST /admin/avalara-products/cache - Initiating Avalara product cache refresh...`
+      `POST /admin/avalara-cache/feed - Initiating Avalara cache refresh (products + tax inclusive settings)...`
     );
 
-    await feedAvalaraProductCacheWorkflow(req.scope).run();
+    const result = await feedAvalaraCacheWorkflow(req.scope).run();
+
+    logger.info("Manual Avalara cache feed completed successfully");
 
     res.json({
-      message: "Product cache refresh completed",
+      message: "Cache refresh completed successfully",
+      result,
     });
   } catch (error) {
     logger.error(
-      `POST /admin/avalara-products/cache - Internal server error: ${error.message}`
+      `POST /admin/avalara-cache/feed - Internal server error: ${error.message}`
     );
+
     res.status(500).json({
       error: "Internal server error",
       details: error.message,

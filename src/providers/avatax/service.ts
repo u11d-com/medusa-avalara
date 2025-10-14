@@ -17,6 +17,7 @@ import {
   AvataxOptionsValidator,
 } from "../../services";
 import { AVALARA_IDENTIFIER } from "../../const";
+import { getAvalaraTaxIncludedCacheKey } from "../../utils";
 
 export class AvataxTaxProvider implements ITaxProvider {
   private readonly logger: Logger;
@@ -73,6 +74,21 @@ export class AvataxTaxProvider implements ITaxProvider {
     }
 
     if (!this.isAddressProvided(context)) {
+      this.logger.debug(
+        "Address not provided or incomplete, returning zero tax rates"
+      );
+      return this.getEmptyTaxLines(itemLines, shippingLines);
+    }
+
+    const taxIncluded =
+      (await this.cache.get<boolean>(
+        getAvalaraTaxIncludedCacheKey(context.address.country_code)
+      )) || false;
+
+    if (taxIncluded) {
+      this.logger.debug(
+        `Prices include tax for country: ${context.address.country_code}`
+      );
       return this.getEmptyTaxLines(itemLines, shippingLines);
     }
 

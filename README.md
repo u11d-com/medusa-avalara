@@ -105,6 +105,7 @@ module.exports = defineConfig(
 > - You can use environment variables instead of hardcoding options, especially important for credentials like `accountId` and `licenseKey`
 > - The example above will use `PC040100` for each product. See [Advanced Usage](#-advanced-usage) for assigning specific tax codes to individual products
 > - The `shipFromAddress` should reflect your Avalara configuration - ensure it matches the address configured in your Avalara account for accurate tax calculations
+> - The plugin fully supports tax-inclusive pricing and automatically respects the region's tax-inclusive preferences
 
 ### 3. Run Database Migration
 

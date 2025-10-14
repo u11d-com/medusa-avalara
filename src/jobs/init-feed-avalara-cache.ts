@@ -1,5 +1,5 @@
 import { MedusaContainer } from "@medusajs/framework/types";
-import feedAvalaraProductCacheWorkflow from "../workflows/feed-avalara-product-cache";
+import feedAvalaraCacheWorkflow from "../workflows/feed-avalara-cache";
 
 export default async function initFeedAvalaraCacheJob(
   container: MedusaContainer
@@ -7,7 +7,7 @@ export default async function initFeedAvalaraCacheJob(
   const logger = container.resolve("logger");
   logger.debug(`Starting ${config.name} job...`);
 
-  await feedAvalaraProductCacheWorkflow(container).run();
+  await feedAvalaraCacheWorkflow(container).run();
 
   logger.debug(`${config.name} job completed.`);
 }
