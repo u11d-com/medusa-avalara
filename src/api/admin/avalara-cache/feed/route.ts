@@ -10,7 +10,7 @@ export async function POST(
 
   try {
     logger.debug(
-      `POST /admin/avalara-cache/feed - Initiating Avalara cache refresh (products + tax inclusive settings)...`
+      `POST /admin/avalara-cache/feed - Initiating Avalara cache refresh (products, customers + tax inclusive settings)...`
     );
 
     const result = await feedAvalaraCacheWorkflow(req.scope).run();
