@@ -6,4 +6,5 @@ export type AvataxClientOptions = {
   licenseKey: string;
   environment: "sandbox" | "production";
   companyCode: string;
+  documentRecordingEnabled?: boolean;
 };

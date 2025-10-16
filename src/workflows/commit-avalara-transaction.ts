@@ -17,11 +17,18 @@ const commitAvalaraTransactionStep = createStep(
   async (orderId: string, { container }) => {
     const logger: Logger = container.resolve(ContainerRegistrationKeys.LOGGER);
 
-    try {
-      const factory: AvataxFactoryService = container.resolve(
-        AVATAX_FACTORY_MODULE
-      );
+    const factory: AvataxFactoryService = container.resolve(
+      AVATAX_FACTORY_MODULE
+    );
 
+    if (factory.getOptions().client.documentRecordingEnabled === false) {
+      logger.info(
+        `Skipping Avalara transaction commit for order ${orderId} - document recording is disabled`
+      );
+      return new StepResponse(false);
+    }
+
+    try {
       logger.debug(`Committing Avalara transaction for order ${orderId}`);
 
       const client = factory.getClient();

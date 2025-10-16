@@ -57,10 +57,18 @@ const createAvalaraTransactionStep = createStep(
   ) => {
     const logger: Logger = container.resolve(ContainerRegistrationKeys.LOGGER);
 
-    try {
-      const factory: AvataxFactoryService = container.resolve(
-        AVATAX_FACTORY_MODULE
+    const factory: AvataxFactoryService = container.resolve(
+      AVATAX_FACTORY_MODULE
+    );
+
+    if (factory.getOptions().client.documentRecordingEnabled === false) {
+      logger.info(
+        `Skipping Avalara transaction creation for order ${order.id} - document recording is disabled`
       );
+      return new StepResponse(false);
+    }
+
+    try {
       const converter = factory.getConverter();
 
       logger.debug(`Creating Avalara transaction for order ${order.id}`);
