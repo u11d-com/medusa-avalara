@@ -41,6 +41,7 @@
   - Commit transactions when orders are completed/fulfilled
   - Void transactions when orders are canceled
 - **Flexible Configuration**: Support for custom shipping addresses and tax codes
+- **Address Validation**: Validate and standardize shipping addresses using Avalara's address validation service
 
 ## 🚀 Quick Start
 
@@ -203,6 +204,29 @@ curl -X PUT http://localhost:9000/admin/avalara-products \
     ]
   }'
 ```
+
+### Address Validation
+
+The plugin provides a `POST /store/avalara-address` endpoint that serves as a proxy to Avalara's [ResolveAddressPost API](https://developer.avalara.com/api-reference/avatax/rest/v2/methods/Addresses/ResolveAddressPost/). Address validation is critical for accurate tax calculations, as Avalara requires correctly formatted and validated addresses to determine proper tax rates and jurisdictions.
+
+**Request Body:**
+
+```json
+{
+  "line1": "512 S Mangum St Ste 100",
+  "city": "Durham",
+  "region": "NC",
+  "postalCode": "27701",
+  "country": "US"
+}
+```
+
+**Notes:**
+
+- Address validation is available for US and Canadian addresses
+- Use this endpoint in your storefront during checkout to validate and save corrected addresses before tax calculation
+- The response includes validated addresses, coordinates, resolution quality, and tax authorities
+- Refer to Avalara's API documentation for more details: https://developer.avalara.com/api-reference/avatax/rest/v2/methods/Addresses/ResolveAddressPost/
 
 ### Manual Module Registration
 
