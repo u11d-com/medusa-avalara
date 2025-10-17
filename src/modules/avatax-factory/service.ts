@@ -30,6 +30,10 @@ export class AvataxFactoryService extends MedusaService({}) {
   getCompanyCode(): string {
     return this.options.client.companyCode;
   }
+
+  getOptions(): AvalaraPluginOptions {
+    return this.options;
+  }
 }
 
 export default AvataxFactoryService;
