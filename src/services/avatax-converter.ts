@@ -58,8 +58,10 @@ export class AvataxConverter {
     transactionModel.type = type;
     transactionModel.date = new Date();
     transactionModel.customerCode = context.customer?.id || "GUEST";
-    transactionModel.currencyCode =
-      itemLines[0]?.line_item.currency_code?.toUpperCase() || "USD";
+    (
+      itemLines[0]?.line_item.currency_code ||
+      shippingLines[0]?.shipping_line.currency_code
+    )?.toUpperCase() || "USD";
     transactionModel.code = orderId || randomUUID();
 
     if (context.customer?.email) {
