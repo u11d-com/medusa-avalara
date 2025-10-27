@@ -3,7 +3,7 @@ import { Migration } from "@mikro-orm/migrations";
 export class Migration20250920184855_AvalaraCustomer extends Migration {
   override async up(): Promise<void> {
     this.addSql(
-      `create table if not exists "avalara_customer" ("id" text not null, "entity_use_code" text not null, "customer_id" text not null, "created_at" timestamptz not null default now(), "updated_at" timestamptz not null default now(), "deleted_at" timestamptz null, constraint "avalara_customer_pkey" primary key ("id"));`
+      `CREATE TABLE IF NOT EXISTS "avalara_customer" ("id" TEXT NOT NULL, "entity_use_code" TEXT NOT NULL, "customer_id" TEXT NOT NULL, "created_at" TIMESTAMPTZ NOT NULL DEFAULT NOW(), "updated_at" TIMESTAMPTZ NOT NULL DEFAULT NOW(), "deleted_at" TIMESTAMPTZ NULL, CONSTRAINT "avalara_customer_pkey" PRIMARY KEY ("id"));`
     );
     this.addSql(
       `CREATE INDEX IF NOT EXISTS "IDX_avalara_customer_customer_id" ON "avalara_customer" (customer_id) WHERE deleted_at IS NULL;`
