@@ -95,9 +95,14 @@ export async function PUT(
         avalara_customers
       );
 
-    const successCount = results.filter((r) => r.success).length;
-    const errorCount = results.filter((r) => r.error).length;
-    const warningCount = results.filter((r) => r.warning).length;
+    const { successCount, errorCount, warningCount } = results.reduce(
+      (acc, r) => ({
+        successCount: acc.successCount + (r.success ? 1 : 0),
+        errorCount: acc.errorCount + (r.error ? 1 : 0),
+        warningCount: acc.warningCount + (r.warning ? 1 : 0),
+      }),
+      { successCount: 0, errorCount: 0, warningCount: 0 }
+    );
 
     await feedAvalaraCustomerCacheWorkflow(req.scope).run();
 
