@@ -17,6 +17,11 @@ export class Migration20250920184855_AvalaraCustomer extends Migration {
   }
 
   override async down(): Promise<void> {
+    this.addSql(
+      `DROP INDEX IF EXISTS "UQ_avalara_customer_customer_id_active";`
+    );
+    this.addSql(`DROP INDEX IF EXISTS "IDX_avalara_customer_deleted_at";`);
+    this.addSql(`DROP INDEX IF EXISTS "IDX_avalara_customer_customer_id";`);
     this.addSql(`drop table if exists "avalara_customer" cascade;`);
   }
 }
