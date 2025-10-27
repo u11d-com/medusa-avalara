@@ -13,7 +13,6 @@ import {
   AddressInfo,
   CreateTransactionModel,
   LineItemModel,
-  TransactionLineModel,
   TransactionModel,
 } from "avatax/lib/models";
 import { DocumentType } from "avatax/enums";
@@ -76,7 +75,7 @@ export class AvataxConverter {
     const lines: LineItemModel[] = [];
 
     await Promise.all(
-      itemLines.map(async ({ line_item }, index) => {
+      itemLines.map(async ({ line_item }) => {
         if (!(line_item.unit_price && line_item.quantity)) {
           throw new Error(
             `Line item ${line_item.id} is missing unit price (${line_item.unit_price}) or quantity (${line_item.quantity})`
@@ -84,7 +83,7 @@ export class AvataxConverter {
         }
 
         const lineItem: LineItemModel = {
-          number: `PROD-${index + 1}`,
+          number: line_item.id,
           quantity: Number(line_item.quantity),
           amount: Number(line_item.unit_price) * Number(line_item.quantity),
           itemCode: line_item.product_id,
@@ -114,11 +113,11 @@ export class AvataxConverter {
       })
     );
 
-    shippingLines.forEach((shippingLine, index) => {
+    shippingLines.forEach(({ shipping_line }) => {
       const shippingLineItem: LineItemModel = {
-        number: `SHIP-${index + 1}`,
+        number: shipping_line.id,
         quantity: 1,
-        amount: Number(shippingLine.shipping_line.unit_price || 0),
+        amount: Number(shipping_line.unit_price || 0),
         description: "Shipping",
         taxCode: this.options.taxCodes?.shipping,
         taxIncluded,
@@ -207,50 +206,47 @@ export class AvataxConverter {
 
     avataxTransaction.lines.forEach((avataxLine) => {
       const isShipping = avataxLine.taxCode === this.options.taxCodes?.shipping;
-      const taxRate = this.calculateTaxRate(avataxLine);
 
-      if (isShipping) {
-        shippingLines.forEach((shippingLine) => {
-          const shippingTaxLine: ShippingTaxLineDTO = {
-            rate: taxRate,
-            name: avataxLine.taxCode || "Sales Tax",
-            code: avataxLine.taxCode || "ST",
-            shipping_line_id: shippingLine.shipping_line.id,
-            provider_id: AVALARA_IDENTIFIER,
-          };
-          taxLines.push(shippingTaxLine);
-        });
-      } else {
-        const itemLine = itemLines.find(
-          (line) => line.line_item.product_id === avataxLine.itemCode
-        );
+      avataxLine.details?.forEach((detail) => {
+        const commonData = {
+          rate: (detail.rate ?? 0) * 100,
+          name: detail.taxName ?? "Sales Tax",
+          code:
+            avataxLine.taxCode ||
+            detail.rateTypeCode ||
+            detail.signatureCode ||
+            "ST",
+          provider_id: AVALARA_IDENTIFIER,
+        };
 
-        if (itemLine) {
-          const itemTaxLine: ItemTaxLineDTO = {
-            rate: taxRate,
-            name: avataxLine.taxCode || "Sales Tax",
-            code: avataxLine.taxCode || "ST",
-            line_item_id: itemLine.line_item.id,
-            provider_id: AVALARA_IDENTIFIER,
-          };
-          taxLines.push(itemTaxLine);
+        if (isShipping) {
+          shippingLines.forEach((shippingLine) => {
+            const shippingTaxLine: ShippingTaxLineDTO = {
+              ...commonData,
+              shipping_line_id: shippingLine.shipping_line.id,
+            };
+            taxLines.push(shippingTaxLine);
+          });
         } else {
-          throw new Error(
-            `No matching item line found for AvaTax line item code ${avataxLine.itemCode}`
+          const itemLine = itemLines.find(
+            (line) => line.line_item.product_id === avataxLine.itemCode
           );
+
+          if (itemLine) {
+            const itemTaxLine: ItemTaxLineDTO = {
+              ...commonData,
+              line_item_id: itemLine.line_item.id,
+            };
+            taxLines.push(itemTaxLine);
+          } else {
+            throw new Error(
+              `No matching item line found for AvaTax line item code ${avataxLine.itemCode}`
+            );
+          }
         }
-      }
+      });
     });
 
     return taxLines;
-  }
-
-  private calculateTaxRate(avataxLine: TransactionLineModel): number {
-    if (!avataxLine.taxCalculated || !avataxLine.taxableAmount) {
-      return 0;
-    }
-
-    const rate = (avataxLine.taxCalculated / avataxLine.taxableAmount) * 100;
-    return Math.round(rate * 100) / 100;
   }
 }
