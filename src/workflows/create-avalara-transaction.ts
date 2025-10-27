@@ -107,6 +107,7 @@ const createAvalaraTransactionStep = createStep(
       const client = factory.getClient();
       await client.createTransaction({
         model: transactionModel,
+        include: "Details",
       });
 
       logger.info(

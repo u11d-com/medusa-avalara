@@ -106,6 +106,7 @@ export class AvataxTaxProvider implements ITaxProvider {
     this.logger.debug("Sending tax calculation request to AvaTax");
     const avataxTransaction = await this.client.createTransaction({
       model: transactionModel,
+      include: "Details",
     });
 
     const taxLines = this.converter.toMedusaTaxLines(
