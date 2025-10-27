@@ -21,6 +21,10 @@ export const withAvalaraPlugin = (
         dependencies: [Modules.CACHE],
       },
       {
+        resolve: "@u11d/medusa-avalara/modules/avalara-customer",
+        dependencies: [Modules.CACHE],
+      },
+      {
         resolve: "@u11d/medusa-avalara/modules/avatax-factory",
         options,
         dependencies: [Modules.CACHE],

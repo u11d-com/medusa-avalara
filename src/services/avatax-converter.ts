@@ -17,8 +17,13 @@ import {
 } from "avatax/lib/models";
 import { DocumentType } from "avatax/enums";
 import { randomUUID } from "crypto";
-import { AvalaraPluginOptions, AvalaraProductCache } from "../types";
 import {
+  AvalaraCustomerCache,
+  AvalaraPluginOptions,
+  AvalaraProductCache,
+} from "../types";
+import {
+  getAvalaraCustomerCacheKey,
   getAvalaraProductCacheKey,
   getAvalaraTaxIncludedCacheKey,
 } from "../utils";
@@ -51,6 +56,20 @@ export class AvataxConverter {
     type: DocumentType,
     orderId?: string
   ): Promise<CreateTransactionModel> {
+    const [taxIncludedCache, avalaraCustomerCache] = await Promise.all([
+      this.cache.get<boolean>(
+        getAvalaraTaxIncludedCacheKey(context.address.country_code)
+      ),
+      context.customer?.id
+        ? this.cache.get<AvalaraCustomerCache>(
+            getAvalaraCustomerCacheKey(context.customer.id)
+          )
+        : null,
+    ]);
+
+    const taxIncluded = taxIncludedCache ?? false;
+    const entityUseCode = avalaraCustomerCache?.entity_use_code;
+
     const transactionModel = new CreateTransactionModel();
 
     transactionModel.companyCode = this.options.client.companyCode;
@@ -62,15 +81,11 @@ export class AvataxConverter {
       shippingLines[0]?.shipping_line.currency_code
     )?.toUpperCase() || "USD";
     transactionModel.code = orderId || randomUUID();
+    transactionModel.entityUseCode = entityUseCode;
 
     if (context.customer?.email) {
       transactionModel.email = context.customer.email;
     }
-
-    const taxIncluded =
-      (await this.cache.get<boolean>(
-        getAvalaraTaxIncludedCacheKey(context.address.country_code)
-      )) || false;
 
     const lines: LineItemModel[] = [];
 
@@ -88,6 +103,7 @@ export class AvataxConverter {
           amount: Number(line_item.unit_price) * Number(line_item.quantity),
           itemCode: line_item.product_id,
           taxIncluded,
+          entityUseCode,
         };
 
         const avalaraProductCache = await this.cache.get<AvalaraProductCache>(
@@ -121,6 +137,7 @@ export class AvataxConverter {
         description: "Shipping",
         taxCode: this.options.taxCodes?.shipping,
         taxIncluded,
+        entityUseCode,
       };
 
       lines.push(shippingLineItem);

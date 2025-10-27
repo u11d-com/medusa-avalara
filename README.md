@@ -40,7 +40,7 @@
 - **Transaction Lifecycle Tracking**:
   - Commit transactions when orders are completed/fulfilled
   - Void transactions when orders are canceled
-- **Flexible Configuration**: Support for custom shipping addresses and tax codes
+- **Flexible Configuration**: Support for custom tax codes, exemptions (entity use code) and shipping addresses.
 - **Address Validation**: Validate and standardize shipping addresses using Avalara's address validation service
 
 ## 🚀 Quick Start
@@ -126,9 +126,16 @@ After starting your Medusa server:
 4. Select **Avalara** as your tax provider
 5. Save the configuration
 
+> **Note:** To disable Avalara and return to the default Medusa tax calculations, simply select **System** as your tax provider in the same settings.
+
 ## 📋 Configuration Options
 
 ### Client Options (`client`)
+
+Access your Avalara dashboard to obtain the required credentials:
+
+- **Production**: https://admin.avalara.com/
+- **Sandbox**: https://sandbox.admin.avalara.com/
 
 | Option                     | Type                        | Required | Default | Description                                                                                                              |
 | -------------------------- | --------------------------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------ |
@@ -161,17 +168,11 @@ After starting your Medusa server:
 
 ## 🎯 Advanced Usage
 
-### Using Different Tax Codes for Products
+### Authentication for Admin API Endpoints
 
-In most e-commerce scenarios, different products require different tax codes based on their category, material, or intended use. The plugin uses the `avalara_product` table to determine which specific Avalara tax code should be applied to each product during tax calculations. You can manage these product-specific tax codes either by updating the database table directly or by using the provided admin API endpoint.
+The configuration endpoints for managing product tax codes and customer exemptions require admin credentials. You'll need to authenticate first to get a Bearer token that you'll use for subsequent API requests.
 
-You can find the complete list of available Avalara tax codes at: https://taxcode.avatax.avalara.com/
-
-By default, all products will use the `taxCodes.default` value. To assign specific Avalara tax codes to individual products, you'll need to authenticate and make a `PUT` request to `/admin/avalara-products`.
-
-**Step 1: Get Authentication Token**
-
-First, authenticate to get a Bearer token:
+**Get Authentication Token:**
 
 ```bash
 curl -X POST http://localhost:9000/auth/user/emailpass \
@@ -182,11 +183,17 @@ curl -X POST http://localhost:9000/auth/user/emailpass \
   }'
 ```
 
-This will return a response containing a `token` field. Copy the token value.
+This will return a response containing a `token` field. Copy this token value to use in the `Authorization: Bearer YOUR_TOKEN_HERE` header for the admin API endpoints described below.
 
-**Step 2: Update Product Tax Codes**
+### Using Different Tax Codes for Products
 
-Use the token to update product tax codes:
+In most e-commerce scenarios, different products require different tax codes based on their category, material, or intended use. The plugin uses the `avalara_product` table to determine which specific Avalara tax code should be applied to each product during tax calculations. You can manage these product-specific tax codes either by updating the database table directly or by using the provided admin API endpoint.
+
+You can find the complete list of available Avalara tax codes at: https://taxcode.avatax.avalara.com/
+
+By default, all products will use the `taxCodes.default` value. To assign specific Avalara tax codes to individual products, make a `PUT` request to `/admin/avalara-products` using your authentication token:
+
+**Update Product Tax Codes:**
 
 ```bash
 curl -X PUT http://localhost:9000/admin/avalara-products \
@@ -204,6 +211,43 @@ curl -X PUT http://localhost:9000/admin/avalara-products \
       }
     ]
   }'
+```
+
+### Customer Tax Exemptions (Entity Use Codes)
+
+Many businesses need to support tax-exempt customers such as government entities, non-profit organizations, or resellers. The plugin provides a complete system for managing customer exemptions through Avalara's Entity Use Codes.
+
+You can find the complete list of predefined Avalara entity use codes at: https://help.avalara.com/Avalara_AvaTax_Update/Entity_Use_Codes
+
+#### Managing Customer Exemptions
+
+The plugin automatically manages customer exemptions through the `avalara_customer` module, which stores entity use codes for exempt customers and caches them for fast lookup during tax calculations.
+
+**Setting Customer Exemptions:**
+
+```bash
+curl -X PUT http://localhost:9000/admin/avalara-customers \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN_HERE" \
+  -d '{
+    "avalara_customers": [
+      {
+        "customer_id": "cus_federal_agency",
+        "entity_use_code": "A"
+      },
+      {
+        "customer_id": "cus_nonprofit",
+        "entity_use_code": "E"
+      }
+    ]
+  }'
+```
+
+**Listing Customer Exemptions:**
+
+```bash
+curl -X GET "http://localhost:9000/admin/avalara-customers?offset=0&limit=20" \
+  -H "Authorization: Bearer YOUR_TOKEN_HERE"
 ```
 
 ### Address Validation
@@ -246,6 +290,10 @@ module.exports = defineConfig({
   modules: [
     {
       resolve: "@u11d/medusa-avalara/modules/avalara-product",
+      dependencies: [Modules.CACHE],
+    },
+    {
+      resolve: "@u11d/medusa-avalara/modules/avalara-customer",
       dependencies: [Modules.CACHE],
     },
     {
@@ -309,12 +357,16 @@ This architecture ensures accurate tax calculations during checkout and proper t
 
 ## 🔧 Troubleshooting
 
-### Migration Error: "relation 'public.avalara_product' does not exist"
+### Migration Error: "relation ... does not exist"
 
-If you encounter this error:
+If you encounter any of the following errors:
 
 ```
 error: Failed to feed cache. Error: select "a0".* from "public"."avalara_product" as "a0" where "a0"."deleted_at" is null order by "a0"."created_at" desc limit 1000 - relation "public.avalara_product" does not exist. Please make sure migration adding avalara_product table has been run and cache module is injected to the module via medusa-config
+```
+
+```
+Failed to feed cache. Error: select "a0".* from "public"."avalara_customer" as "a0" where "a0"."deleted_at" is null order by "a0"."created_at" desc limit 1000 - relation "public.avalara_customer" does not exist. Please make sure migration adding avalara_customer table has been run and cache module is injected to the module via medusa-config.
 ```
 
 **Solution:** Run the database migration:
