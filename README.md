@@ -21,19 +21,19 @@
   <a href="https://docs.medusajs.com"><img src="https://img.shields.io/badge/Medusa-2.8.0+-9333ea.svg" alt="Medusa Version" /></a>
 </p>
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [✨ Features](#-features)
-- [🚀 Quick Start](#-quick-start)
-- [📋 Configuration Options](#-configuration-options)
-- [🎯 Advanced Usage](#-advanced-usage)
-- [⚙️ How the plugin works?](#️-how-the-plugin-works)
-- [🔧 Troubleshooting](#-troubleshooting)
-- [✋ Need help?](#-need-help)
-- [🤝 Contributing](#-contributing)
-- [📄 License](#-license)
+- [Features](#features)
+- [Quick Start](#quick-start)
+- [Configuration Options](#configuration-options)
+- [Advanced Usage](#advanced-usage)
+- [How the plugin works?](#how-the-plugin-works)
+- [Troubleshooting](#troubleshooting)
+- [Need help?](#need-help)
+- [Contributing](#contributing)
+- [License](#license)
 
-## ✨ Features
+## Features
 
 - **Real-time Tax Calculations**: Automatically calculate accurate taxes during checkout using Avalara's AvaTax API
 - **Order Transaction Management**: Create AvaTax transactions when orders are placed for proper tax recording
@@ -43,7 +43,7 @@
 - **Flexible Configuration**: Support for custom tax codes, exemptions (entity use code) and shipping addresses.
 - **Address Validation**: Validate and standardize shipping addresses using Avalara's address validation service
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Installation
 
@@ -104,7 +104,7 @@ module.exports = defineConfig(
 >
 > - The `withAvalaraPlugin` wrapper handles plugin modules registration and dependency injection automatically. See [Manual Module Registration](#manual-module-registration) section if you need to understand what the helper does or configure modules manually
 > - You can use environment variables instead of hardcoding options, especially important for credentials like `accountId` and `licenseKey`
-> - The example above will use `PC040100` for each product. See [Advanced Usage](#-advanced-usage) for assigning specific tax codes to individual products
+> - The example above will use `PC040100` for each product. See [Advanced Usage](#advanced-usage) for assigning specific tax codes to individual products
 > - The `shipFromAddress` should reflect your Avalara configuration - ensure it matches the address configured in your Avalara account for accurate tax calculations
 > - The plugin fully supports tax-inclusive pricing and automatically respects the region's tax-inclusive preferences
 
@@ -128,7 +128,7 @@ After starting your Medusa server:
 
 > **Note:** To disable Avalara and return to the default Medusa tax calculations, simply select **System** as your tax provider in the same settings.
 
-## 📋 Configuration Options
+## Configuration Options
 
 ### Client Options (`client`)
 
@@ -166,7 +166,7 @@ Access your Avalara dashboard to obtain the required credentials:
 | `default`  | `string` | ❌       | `"P0000000"` | Default tax code for products |
 | `shipping` | `string` | ❌       | `"FR020100"` | Tax code for shipping         |
 
-## 🎯 Advanced Usage
+## Advanced Usage
 
 ### Authentication for Admin API Endpoints
 
@@ -319,7 +319,7 @@ module.exports = defineConfig({
 
 > **Note:** Manual registration requires careful attention to module dependencies and isolation. The `withAvalaraPlugin` wrapper is recommended as it handles these complexities automatically.
 
-## ⚙️ How the plugin works?
+## How the plugin works?
 
 The Medusa Avalara plugin integrates with Avalara's AvaTax service through a modular architecture:
 
@@ -355,7 +355,7 @@ The Medusa Avalara plugin integrates with Avalara's AvaTax service through a mod
 
 This architecture ensures accurate tax calculations during checkout and proper transaction lifecycle management in Avalara's system. The `withAvalaraPlugin` wrapper simplifies the setup by automatically configuring all these modules with proper dependencies and isolation.
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 ### Migration Error: "relation ... does not exist"
 
@@ -398,20 +398,20 @@ If you're seeing $0 tax amounts in your calculations, follow these troubleshooti
    - Confirm you're using the correct environment (sandbox vs production)
    - Verify your API credentials are valid and have the necessary permissions
 
-## ✋ Need help?
+## Need help?
 
 If you encounter any issues or need assistance with this plugin, please visit our [GitHub Issues](https://github.com/u11d-com/medusa-avalara/issues) page. Our team actively monitors and responds to bug reports, feature requests, and questions from the community. We aim to provide timely support to ensure your integration with Avalara runs smoothly.
 
 Need expert assistance or want our team to support your Medusa project? We're here to help! Contact us at [https://u11d.com/contact/](https://u11d.com/contact/) for professional support and consultation services.
 
-## 📖 Learn More
+## Learn More
 
 Read our comprehensive blog article about integrating Avalara with Medusa: [https://u11d.com/blog/automated-tax-calculations-medusa-avalara-integration](https://u11d.com/blog/automated-tax-calculations-medusa-avalara-integration/)
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
