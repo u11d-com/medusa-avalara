@@ -144,8 +144,6 @@ Access your Avalara dashboard to obtain the required credentials:
 | `environment`              | `"sandbox" \| "production"` | ✅       | -       | AvaTax environment                                                                                                       |
 | `companyCode`              | `string`                    | ✅       | -       | Your company code in AvaTax                                                                                              |
 | `documentRecordingEnabled` | `boolean`                   | ❌       | `true`  | Controls whether documents should be recorded in AvaTax. If set to `false` transactions (sales invoices) are not created |
-| `appName`                  | `string`                    | ❌       | -       | Custom app name                                                                                                          |
-| `appVersion`               | `string`                    | ❌       | -       | Custom app version                                                                                                       |
 | `machineName`              | `string`                    | ❌       | -       | Machine identifier                                                                                                       |
 
 ### Ship From Address (`shipFromAddress`)

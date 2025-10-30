@@ -57,8 +57,6 @@ export class AvataxOptionsValidator {
       "production",
     ]);
 
-    this.validateOptionalField("appName", clientOptions);
-    this.validateOptionalField("appVersion", clientOptions);
     this.validateOptionalField("machineName", clientOptions);
 
     return true;

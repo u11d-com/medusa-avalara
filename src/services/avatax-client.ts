@@ -2,21 +2,24 @@ import AvaTaxClient from "avatax";
 import { LogLevel } from "avatax/lib/utils/logger";
 import { Logger } from "@medusajs/framework/types";
 import { AvataxClientOptions } from "../types";
+import { getPackageVersion } from "../utils";
 
 export class AvataxClientFactory {
   private client: AvaTaxClient;
+  private readonly pluginVersion: string;
 
   constructor(
     private readonly logger: Logger,
     private readonly options: AvataxClientOptions
   ) {
+    this.pluginVersion = getPackageVersion(this.logger);
     this.initializeClient();
   }
 
   private initializeClient(): void {
     this.client = new AvaTaxClient({
-      appName: this.options.appName || "MedusaAvaTaxPlugin",
-      appVersion: this.options.appVersion || "1.0.0",
+      appName: "MedusaByU11D;a0oUz000009NbjFIAS",
+      appVersion: this.pluginVersion,
       machineName: this.options.machineName || "MedusaServer",
       environment: this.options.environment,
       timeout: 30_000,
