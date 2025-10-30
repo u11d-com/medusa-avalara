@@ -134,6 +134,7 @@ export class AvataxConverter {
         number: shipping_line.id,
         quantity: 1,
         amount: Number(shipping_line.unit_price || 0),
+        itemCode: shipping_line.shipping_option_id,
         description: "Shipping",
         taxCode: this.options.taxCodes?.shipping,
         taxIncluded,
