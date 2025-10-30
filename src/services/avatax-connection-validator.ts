@@ -22,7 +22,7 @@ export class AvataxConnectionValidator {
       );
     }
 
-    await this.validateCompanyCode();
+    await this.validateCompany();
     this.logger.info("AvaTax credentials validation completed successfully");
   }
 
@@ -38,36 +38,35 @@ export class AvataxConnectionValidator {
     }
   }
 
-  private async validateCompanyCode(): Promise<boolean> {
+  private async validateCompany(): Promise<boolean> {
     try {
-      this.logger.debug(`Validating company code: ${this.options.companyCode}`);
+      this.logger.debug(`Validating company ID: ${this.options.companyId}`);
 
-      const response = await this.client.queryCompanies({
-        filter: `companyCode eq '${this.options.companyCode}'`,
-        top: 1,
+      const company = await this.client.getCompany({
+        id: this.options.companyId,
       });
 
-      if (!Array.isArray(response.value)) {
-        throw new Error("Unexpected response format from AvaTax");
-      }
-
-      if (response.value.length === 0) {
+      if (!company) {
         throw new Error(
-          `Company code '${this.options.companyCode}' not found in AvaTax account`
+          `Company with ID '${this.options.companyId}' does not exist`
         );
       }
 
-      if (response.value.length > 1) {
+      if (company.companyCode !== this.options.companyCode) {
         throw new Error(
-          `Multiple companies found with code '${this.options.companyCode}'`
+          `Company code '${company.companyCode}' does not match the provided company code '${this.options.companyCode}'`
         );
       }
 
-      const company = response.value[0];
+      if (company.accountId !== this.options.accountId) {
+        throw new Error(
+          `Company account ID '${company.accountId}' does not match the provided account ID '${this.options.accountId}'`
+        );
+      }
 
       if (!company.isActive) {
         throw new Error(
-          `Company '${this.options.companyCode}' exists but is not active`
+          `Company '${this.options.companyId}' exists but is not active`
         );
       }
 
