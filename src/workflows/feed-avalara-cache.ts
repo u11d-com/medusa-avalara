@@ -6,6 +6,7 @@ import {
   feedAvalaraProductCacheStep,
   feedAvalaraCustomerCacheStep,
   feedAvalaraTaxInclusiveCacheStep,
+  feedAvalaraLocationCacheStep,
 } from "./steps";
 
 const feedAvalaraCacheWorkflow = createWorkflow(
@@ -14,11 +15,13 @@ const feedAvalaraCacheWorkflow = createWorkflow(
     const productResult = feedAvalaraProductCacheStep();
     const customerResult = feedAvalaraCustomerCacheStep();
     const taxInclusiveResult = feedAvalaraTaxInclusiveCacheStep();
+    const locationResult = feedAvalaraLocationCacheStep();
 
     return new WorkflowResponse({
       products: productResult,
       customers: customerResult,
       taxInclusive: taxInclusiveResult,
+      locations: locationResult,
     });
   }
 );

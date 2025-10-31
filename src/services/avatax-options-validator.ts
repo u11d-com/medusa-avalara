@@ -1,21 +1,21 @@
-import { AddressInfo } from "avatax/lib/models";
 import { AvataxClientOptions, AvalaraPluginOptions } from "../types";
 
 export class AvataxOptionsValidator {
   private static validateRequiredField(
     name: string,
     value: object,
+    valueType: "string" | "number",
     allowedValues?: string[]
   ): void {
     if (!(name in value)) {
       throw new Error(`AvaTax ${name} is required`);
     }
 
-    if (typeof value[name] !== "string") {
-      throw new Error(`AvaTax ${name} must be a string`);
+    if (typeof value[name] !== valueType) {
+      throw new Error(`AvaTax ${name} must be a ${valueType}`);
     }
 
-    if (value[name]!.trim() === "") {
+    if (valueType === "string" && value[name]!.trim() === "") {
       throw new Error(`AvaTax ${name} must be a non-empty string`);
     }
 
@@ -49,51 +49,16 @@ export class AvataxOptionsValidator {
       throw new Error("AvaTax client options must be provided as an object");
     }
 
-    this.validateRequiredField("accountId", clientOptions);
-    this.validateRequiredField("licenseKey", clientOptions);
-    this.validateRequiredField("companyCode", clientOptions);
-    this.validateRequiredField("environment", clientOptions, [
+    this.validateRequiredField("accountId", clientOptions, "number");
+    this.validateRequiredField("licenseKey", clientOptions, "string");
+    this.validateRequiredField("companyId", clientOptions, "number");
+    this.validateRequiredField("companyCode", clientOptions, "string");
+    this.validateRequiredField("environment", clientOptions, "string", [
       "sandbox",
       "production",
     ]);
 
     this.validateOptionalField("machineName", clientOptions);
-
-    return true;
-  }
-
-  static validateShipFromAddress(
-    shipFromAddress: AddressInfo
-  ): shipFromAddress is AddressInfo {
-    if (!shipFromAddress || typeof shipFromAddress !== "object") {
-      throw new Error("AvaTax shipFromAddress must be provided as an object");
-    }
-
-    const requiredFields = ["line1", "city", "country", "postalCode"];
-    const missingFields = requiredFields.filter((field) => {
-      const value = shipFromAddress[field as keyof AddressInfo];
-      return !value || (typeof value === "string" && value.trim() === "");
-    });
-
-    if (missingFields.length > 0) {
-      throw new Error(
-        `Missing required AvaTax shipFromAddress fields: ${missingFields.join(
-          ", "
-        )}`
-      );
-    }
-
-    if (shipFromAddress.country === "US" && !shipFromAddress.region) {
-      throw new Error(
-        "AvaTax shipFromAddress.region is required when country is US"
-      );
-    }
-
-    if (shipFromAddress.country?.length !== 2) {
-      throw new Error(
-        "AvaTax shipFromAddress.country must be a 2-letter ISO country code"
-      );
-    }
 
     return true;
   }
@@ -145,12 +110,7 @@ export class AvataxOptionsValidator {
       throw new Error("AvaTax client configuration is required");
     }
 
-    if (!options.shipFromAddress) {
-      throw new Error("AvaTax shipFromAddress configuration is required");
-    }
-
     this.validateClientOptions(options.client);
-    this.validateShipFromAddress(options.shipFromAddress);
 
     if (options.taxCodes !== undefined) {
       if (typeof options.taxCodes !== "object") {

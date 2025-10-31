@@ -32,7 +32,7 @@ export class AvataxClientFactory {
       },
       enableStrictTypeConversion: true,
     }).withSecurity({
-      accountId: this.options.accountId,
+      accountId: this.options.accountId.toString(),
       licenseKey: this.options.licenseKey,
     });
 

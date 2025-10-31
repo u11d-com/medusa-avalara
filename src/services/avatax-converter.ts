@@ -7,6 +7,7 @@ import {
   OrderDTO,
   ShippingTaxCalculationLine,
   ShippingTaxLineDTO,
+  StockLocationAddressDTO,
   TaxCalculationContext,
 } from "@medusajs/framework/types";
 import {
@@ -15,10 +16,11 @@ import {
   LineItemModel,
   TransactionModel,
 } from "avatax/lib/models";
-import { DocumentType } from "avatax/enums";
+import { DocumentType } from "avatax/lib/enums";
 import { randomUUID } from "crypto";
 import {
   AvalaraCustomerCache,
+  AvalaraLocationCache,
   AvalaraPluginOptions,
   AvalaraProductCache,
 } from "../types";
@@ -26,6 +28,7 @@ import {
   getAvalaraCustomerCacheKey,
   getAvalaraProductCacheKey,
   getAvalaraTaxIncludedCacheKey,
+  getAvalaraLocationCacheKey,
 } from "../utils";
 import { AVALARA_IDENTIFIER } from "../const";
 
@@ -56,22 +59,25 @@ export class AvataxConverter {
     type: DocumentType,
     orderId?: string
   ): Promise<CreateTransactionModel> {
-    const [taxIncludedCache, avalaraCustomerCache] = await Promise.all([
-      this.cache.get<boolean>(
-        getAvalaraTaxIncludedCacheKey(context.address.country_code)
-      ),
-      context.customer?.id
-        ? this.cache.get<AvalaraCustomerCache>(
-            getAvalaraCustomerCacheKey(context.customer.id)
-          )
-        : null,
-    ]);
+    const [taxIncludedCache, avalaraCustomerCache, locationCache] =
+      await Promise.all([
+        this.cache.get<boolean>(
+          getAvalaraTaxIncludedCacheKey(context.address.country_code)
+        ),
+        context.customer?.id
+          ? this.cache.get<AvalaraCustomerCache>(
+              getAvalaraCustomerCacheKey(context.customer.id)
+            )
+          : null,
+        this.getLocationCache(context.address),
+      ]);
 
     const taxIncluded = taxIncludedCache ?? false;
     const entityUseCode = avalaraCustomerCache?.entity_use_code;
 
     const transactionModel = new CreateTransactionModel();
 
+    transactionModel.reportingLocationCode = locationCache?.locationCode;
     transactionModel.companyCode = this.options.client.companyCode;
     transactionModel.type = type;
     transactionModel.date = new Date();
@@ -146,12 +152,62 @@ export class AvataxConverter {
 
     transactionModel.lines = lines;
 
-    transactionModel.addresses = {
-      shipFrom: this.options.shipFromAddress,
-      shipTo: this.toAvataxAddress(context.address),
-    };
+    transactionModel.addresses = locationCache
+      ? {
+          shipFrom: locationCache.address,
+          shipTo: this.toAvataxAddress(context.address),
+        }
+      : {
+          singleLocation: this.toAvataxAddress(context.address),
+        };
 
     return transactionModel;
+  }
+
+  private async getLocationCache(
+    address: TaxCalculationContext["address"]
+  ): Promise<AvalaraLocationCache | undefined> {
+    const countryCode = address.country_code?.toLowerCase();
+    if (!countryCode) {
+      this.logger.warn("No country code provided for location lookup");
+      return undefined;
+    }
+
+    const provinceCode = address.province_code?.toLowerCase();
+
+    if (provinceCode) {
+      const specificKey = getAvalaraLocationCacheKey(countryCode, provinceCode);
+      const specificLocation = await this.cache.get<AvalaraLocationCache>(
+        specificKey
+      );
+
+      if (specificLocation) {
+        this.logger.debug(
+          `Found location code for ${countryCode}_${provinceCode}: ${specificLocation.locationCode}`
+        );
+        return specificLocation;
+      }
+    }
+
+    const countryKey = getAvalaraLocationCacheKey(countryCode);
+    const countryLocation = await this.cache.get<AvalaraLocationCache>(
+      countryKey
+    );
+
+    if (countryLocation) {
+      this.logger.debug(
+        `Found location code for ${countryCode}: ${countryLocation.locationCode}`
+      );
+      return countryLocation;
+    }
+
+    this.logger.warn(
+      `No location code found for ${countryCode}${
+        provinceCode ? `_${provinceCode}` : ""
+      }`
+    );
+
+    return undefined;
   }
 
   private validateOrderAddress(
@@ -200,12 +256,28 @@ export class AvataxConverter {
     return context;
   }
 
-  toAvataxAddress(address: TaxCalculationContext["address"]): AddressInfo {
+  private getRegion(
+    address: TaxCalculationContext["address"] | StockLocationAddressDTO
+  ): string | undefined {
+    if ("province_code" in address && address.province_code) {
+      return address.province_code;
+    }
+
+    if ("province" in address && address.province) {
+      return address.province;
+    }
+
+    return undefined;
+  }
+
+  toAvataxAddress(
+    address: TaxCalculationContext["address"] | StockLocationAddressDTO
+  ): AddressInfo {
     return {
       line1: address.address_1 || "",
       line2: address.address_2 || undefined,
       city: address.city || "",
-      region: address.province_code || "",
+      region: this.getRegion(address),
       country: address.country_code?.toUpperCase() || "",
       postalCode: address.postal_code || "",
     };

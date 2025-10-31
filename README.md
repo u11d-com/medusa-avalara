@@ -64,17 +64,11 @@ import { withAvalaraPlugin, AvalaraPluginOptions } from "@u11d/medusa-avalara";
 
 const avalaraPluginOptions: AvalaraPluginOptions = {
   client: {
-    accountId: "YOUR_ACCOUNT_ID",
+    accountId: 0 // Your Avalara account ID,
     licenseKey: "YOUR_LICENSE_KEY",
     environment: "sandbox",
+    companyId: 0, // Your Avalara company ID
     companyCode: "DEFAULT",
-  },
-  shipFromAddress: {
-    line1: "512 S Mangum St Ste 100",
-    city: "Durham",
-    region: "NC",
-    country: "US",
-    postalCode: "27701-3973",
   },
   taxCodes: {
     shipping: "FR020100",
@@ -105,7 +99,7 @@ module.exports = defineConfig(
 > - The `withAvalaraPlugin` wrapper handles plugin modules registration and dependency injection automatically. See [Manual Module Registration](#manual-module-registration) section if you need to understand what the helper does or configure modules manually
 > - You can use environment variables instead of hardcoding options, especially important for credentials like `accountId` and `licenseKey`
 > - The example above will use `PC040100` for each product. See [Advanced Usage](#advanced-usage) for assigning specific tax codes to individual products
-> - The `shipFromAddress` should reflect your Avalara configuration - ensure it matches the address configured in your Avalara account for accurate tax calculations
+> - The plugin automatically syncs your Medusa stock locations with Avalara locations on startup for accurate tax calculations. However, since Medusa doesn't emit events for stock location changes, if you create or update a location after startup, you'll need to either restart the app or manually call `POST /admin/avalara-cache/feed` to refresh the cache
 > - The plugin fully supports tax-inclusive pricing and automatically respects the region's tax-inclusive preferences
 
 ### 3. Run Database Migration
@@ -139,23 +133,13 @@ Access your Avalara dashboard to obtain the required credentials:
 
 | Option                     | Type                        | Required | Default | Description                                                                                                              |
 | -------------------------- | --------------------------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `accountId`                | `string`                    | ✅       | -       | Your Avalara account ID                                                                                                  |
+| `accountId`                | `number`                    | ✅       | -       | Your Avalara account ID                                                                                                  |
 | `licenseKey`               | `string`                    | ✅       | -       | Your Avalara license key                                                                                                 |
 | `environment`              | `"sandbox" \| "production"` | ✅       | -       | AvaTax environment                                                                                                       |
 | `companyCode`              | `string`                    | ✅       | -       | Your company code in AvaTax                                                                                              |
+| `companyId`                | `number`                    | ✅       | -       | Your Avalara company ID                                                                                                  |
 | `documentRecordingEnabled` | `boolean`                   | ❌       | `true`  | Controls whether documents should be recorded in AvaTax. If set to `false` transactions (sales invoices) are not created |
 | `machineName`              | `string`                    | ❌       | -       | Machine identifier                                                                                                       |
-
-### Ship From Address (`shipFromAddress`)
-
-| Option       | Type     | Required             | Description               |
-| ------------ | -------- | -------------------- | ------------------------- |
-| `line1`      | `string` | ✅                   | Street address line 1     |
-| `line2`      | `string` | ❌                   | Street address line 2     |
-| `city`       | `string` | ✅                   | City name                 |
-| `region`     | `string` | ⚠️ (required for US) | State/province code       |
-| `country`    | `string` | ✅                   | ISO 2-letter country code |
-| `postalCode` | `string` | ✅                   | Postal/ZIP code           |
 
 ### Tax Codes (`taxCodes`)
 
