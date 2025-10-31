@@ -14,6 +14,7 @@ import {
   AddressInfo,
   CreateTransactionModel,
   LineItemModel,
+  TransactionLineModel,
   TransactionModel,
 } from "avatax/lib/models";
 import { DocumentType } from "avatax/lib/enums";
@@ -296,47 +297,74 @@ export class AvataxConverter {
 
     avataxTransaction.lines.forEach((avataxLine) => {
       const isShipping = avataxLine.taxCode === this.options.taxCodes?.shipping;
+      const taxRate = this.calculateTaxRate(avataxLine);
+      const common = {
+        rate: taxRate,
+        name: avataxLine.taxCode || "Tax",
+        provider_id: AVALARA_IDENTIFIER,
+      };
 
-      avataxLine.details?.forEach((detail) => {
-        const commonData = {
-          rate: (detail.rate ?? 0) * 100,
-          name: detail.taxName ?? "Sales Tax",
-          code:
-            avataxLine.taxCode ||
-            detail.rateTypeCode ||
-            detail.signatureCode ||
-            "ST",
-          provider_id: AVALARA_IDENTIFIER,
-        };
+      if (isShipping) {
+        shippingLines.forEach(({ shipping_line }) => {
+          const shippingTaxLine: ShippingTaxLineDTO = {
+            ...common,
+            code: avataxLine.taxCode || "Shipping Tax",
+            shipping_line_id: shipping_line.id,
+          };
+          taxLines.push(shippingTaxLine);
+        });
+      } else {
+        const itemLine = itemLines.find(
+          (line) => line.line_item.product_id === avataxLine.itemCode
+        );
 
-        if (isShipping) {
-          shippingLines.forEach((shippingLine) => {
-            const shippingTaxLine: ShippingTaxLineDTO = {
-              ...commonData,
-              shipping_line_id: shippingLine.shipping_line.id,
-            };
-            taxLines.push(shippingTaxLine);
-          });
+        if (itemLine) {
+          const itemTaxLine: ItemTaxLineDTO = {
+            ...common,
+            code: avataxLine.taxCode || "Item Tax",
+            line_item_id: itemLine.line_item.id,
+          };
+          taxLines.push(itemTaxLine);
         } else {
-          const itemLine = itemLines.find(
-            (line) => line.line_item.product_id === avataxLine.itemCode
+          throw new Error(
+            `No matching item line found for AvaTax line item code ${avataxLine.itemCode}`
           );
-
-          if (itemLine) {
-            const itemTaxLine: ItemTaxLineDTO = {
-              ...commonData,
-              line_item_id: itemLine.line_item.id,
-            };
-            taxLines.push(itemTaxLine);
-          } else {
-            throw new Error(
-              `No matching item line found for AvaTax line item code ${avataxLine.itemCode}`
-            );
-          }
         }
-      });
+      }
     });
 
     return taxLines;
+  }
+
+  /**
+   * Calculates tax rate percentage from Avalara's calculated tax amount.
+   *
+   * Avalara recommends using the tax calculated amount rather than the tax rates directly to ensure accuracy.
+   * We calculate the rate as: (taxCalculated / taxableAmount) * 100 for consistency with Medusa's expectations.
+   *
+   * Example scenario where direct rate usage would be incorrect:
+   * - Product tax code: PC040600
+   * - Product price: $10.00
+   * - Ship from: 3203 13th Ave S Fargo, ND 58103 US
+   * - Ship to: 1710 Chapel Hill Rd Durham, NC 27707-1104 US
+   * - Avalara calculated tax: $0.76
+   * - Medusa calculated tax: $0.75
+   *
+   * The rate displayed in Medusa admin panel may show minor rounding differences,
+   * but the total tax amount will remain accurate and consistent with Avalara data.
+   *
+   * Reference: https://developer.avalara.com/ecommerce-integration-guide/transactions/certification-requirements/verify-avalara-calculated-tax/
+   */
+  private calculateTaxRate(avataxLine: TransactionLineModel): number {
+    if (!avataxLine.taxCalculated || !avataxLine.taxableAmount) {
+      return 0;
+    }
+
+    const rate = (avataxLine.taxCalculated / avataxLine.taxableAmount) * 100;
+    this.logger.debug(
+      `Calculated tax rate for line ${avataxLine.id} (${avataxLine.itemCode}): ${rate}%`
+    );
+
+    return rate;
   }
 }

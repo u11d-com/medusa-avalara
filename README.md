@@ -96,6 +96,7 @@ module.exports = defineConfig(
 
 > **Important Notes:**
 >
+> - It's strongly recommended to call `POST /store/carts/${cartId}/taxes` ([docs](https://docs.medusajs.com/api/store#carts_postcartsidtaxes)) before checkout to ensure taxes are recalculated correctly. Medusa doesn't automatically recalculate taxes when cart properties change (quantity, address, discounts), which can lead to incorrect amounts. See [issue #13929](https://github.com/medusajs/medusa/issues/13929)
 > - The `withAvalaraPlugin` wrapper handles plugin modules registration and dependency injection automatically. See [Manual Module Registration](#manual-module-registration) section if you need to understand what the helper does or configure modules manually
 > - You can use environment variables instead of hardcoding options, especially important for credentials like `accountId` and `licenseKey`
 > - The example above will use `PC040100` for each product. See [Advanced Usage](#advanced-usage) for assigning specific tax codes to individual products
