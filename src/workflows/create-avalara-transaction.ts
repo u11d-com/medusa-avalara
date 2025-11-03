@@ -30,6 +30,7 @@ const fetchDataStep = createStep(
     const order = await orderService.retrieveOrder(orderId, {
       relations: [
         "items",
+        "items.adjustments",
         "shipping_methods",
         "billing_address",
         "shipping_address",
@@ -78,7 +79,13 @@ const createAvalaraTransactionStep = createStep(
           line_item: {
             id: item.id,
             product_id: item.product_id || "",
-            unit_price: item.unit_price,
+            unit_price:
+              item.unit_price -
+              (item.adjustments?.reduce(
+                (acc, adj) => acc + Number(adj.amount),
+                0
+              ) || 0) /
+                item.quantity,
             quantity: item.quantity,
             currency_code: order.currency_code,
           },
