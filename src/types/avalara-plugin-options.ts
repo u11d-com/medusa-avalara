@@ -1,9 +1,13 @@
-import { AvataxClientOptions } from "./avatax-client-options";
-
 export type AvalaraPluginOptions = {
-  client: AvataxClientOptions;
-  taxCodes?: {
-    default?: string;
-    shipping?: string;
-  };
+  accountId: number;
+  licenseKey: string;
+  environment: "sandbox" | "production";
+  companyCode: string;
+  companyId: number;
+
+  documentRecordingEnabled?: boolean;
+  machineName?: string;
+
+  defaultTaxCode?: string;
+  shippingTaxCode?: string;
 };

@@ -21,7 +21,9 @@ const commitAvalaraTransactionStep = createStep(
       AVATAX_FACTORY_MODULE
     );
 
-    if (factory.getOptions().client.documentRecordingEnabled === false) {
+    const { companyCode, documentRecordingEnabled } = factory.getOptions();
+
+    if (documentRecordingEnabled === false) {
       logger.info(
         `Skipping Avalara transaction commit for order ${orderId} - document recording is disabled`
       );
@@ -33,7 +35,7 @@ const commitAvalaraTransactionStep = createStep(
 
       const client = factory.getClient();
       await client.commitTransaction({
-        companyCode: factory.getCompanyCode(),
+        companyCode,
         model: {
           commit: true,
         },

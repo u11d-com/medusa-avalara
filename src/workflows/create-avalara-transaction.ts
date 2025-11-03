@@ -62,7 +62,8 @@ const createAvalaraTransactionStep = createStep(
       AVATAX_FACTORY_MODULE
     );
 
-    if (factory.getOptions().client.documentRecordingEnabled === false) {
+    const { documentRecordingEnabled } = factory.getOptions();
+    if (documentRecordingEnabled === false) {
       logger.info(
         `Skipping Avalara transaction creation for order ${order.id} - document recording is disabled`
       );

@@ -1,13 +1,13 @@
 import AvaTaxClient from "avatax";
 import { Logger } from "@medusajs/framework/types";
 import { PingResultModel } from "avatax/lib/models/index";
-import { AvataxClientOptions } from "../types";
+import { AvalaraPluginOptions } from "../types";
 
 export class AvataxConnectionValidator {
   constructor(
     private readonly logger: Logger,
     private readonly client: AvaTaxClient,
-    private readonly options: AvataxClientOptions
+    private readonly options: AvalaraPluginOptions
   ) {}
 
   async validateConnection(): Promise<void> {

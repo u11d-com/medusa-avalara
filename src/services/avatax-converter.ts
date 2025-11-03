@@ -79,7 +79,7 @@ export class AvataxConverter {
     const transactionModel = new CreateTransactionModel();
 
     transactionModel.reportingLocationCode = locationCache?.locationCode;
-    transactionModel.companyCode = this.options.client.companyCode;
+    transactionModel.companyCode = this.options.companyCode;
     transactionModel.type = type;
     transactionModel.date = new Date();
     transactionModel.customerCode = context.customer?.id || "GUEST";
@@ -121,7 +121,7 @@ export class AvataxConverter {
         );
 
         lineItem.taxCode =
-          avalaraProductCache?.tax_code || this.options.taxCodes?.default;
+          avalaraProductCache?.tax_code || this.options.defaultTaxCode;
 
         lineItem.description =
           avalaraProductCache?.title || `Product ${line_item.product_id}`;
@@ -143,7 +143,7 @@ export class AvataxConverter {
         amount: Number(shipping_line.unit_price || 0),
         itemCode: shipping_line.shipping_option_id,
         description: "Shipping",
-        taxCode: this.options.taxCodes?.shipping,
+        taxCode: this.options.shippingTaxCode,
         taxIncluded,
         entityUseCode,
       };
@@ -296,7 +296,7 @@ export class AvataxConverter {
     }
 
     avataxTransaction.lines.forEach((avataxLine) => {
-      const isShipping = avataxLine.taxCode === this.options.taxCodes?.shipping;
+      const isShipping = avataxLine.taxCode === this.options.shippingTaxCode;
       const taxRate = this.calculateTaxRate(avataxLine);
       const common = {
         rate: taxRate,
