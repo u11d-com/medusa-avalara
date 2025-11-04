@@ -49,10 +49,6 @@ export class AvataxOptionsValidator {
       throw new Error("AvaTax plugin options must be provided as an object");
     }
 
-    if (!options.client) {
-      throw new Error("AvaTax client configuration is required");
-    }
-
     this.validateRequiredField("accountId", options, "number");
     this.validateRequiredField("licenseKey", options, "string");
     this.validateRequiredField("companyId", options, "number");

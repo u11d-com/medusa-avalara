@@ -19,8 +19,8 @@ export default async function avataxFactoryLoader({
     );
   }
 
-  if (!(options?.client && typeof options.client === "object")) {
-    throw new Error("AvaTax client options must be provided");
+  if (!(options && typeof options === "object")) {
+    throw new Error("AvaTax options must be provided");
   }
 
   if (!AvataxOptionsValidator.validateOptions(options)) {
