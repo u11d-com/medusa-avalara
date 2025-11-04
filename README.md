@@ -63,14 +63,12 @@ import { defineConfig } from "@medusajs/framework/utils";
 import { withAvalaraPlugin, AvalaraPluginOptions } from "@u11d/medusa-avalara";
 
 const avalaraPluginOptions: AvalaraPluginOptions = {
-
-    accountId: 0 // Your Avalara account ID,
-    licenseKey: "YOUR_LICENSE_KEY",
-    environment: "sandbox",
-    companyId: 0, // Your Avalara company ID
-    companyCode: "DEFAULT",
-    defaultTaxCode: "PC040100", // Clothing and related products (business-to-customer)-general
-
+  accountId: 0, // Your Avalara account ID
+  licenseKey: "YOUR_LICENSE_KEY",
+  environment: "sandbox",
+  companyId: 0, // Your Avalara company ID
+  companyCode: "DEFAULT",
+  defaultTaxCode: "PC040100", // Clothing and related products (business-to-customer)-general
 };
 
 module.exports = defineConfig(
