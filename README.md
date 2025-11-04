@@ -63,17 +63,14 @@ import { defineConfig } from "@medusajs/framework/utils";
 import { withAvalaraPlugin, AvalaraPluginOptions } from "@u11d/medusa-avalara";
 
 const avalaraPluginOptions: AvalaraPluginOptions = {
-  client: {
+
     accountId: 0 // Your Avalara account ID,
     licenseKey: "YOUR_LICENSE_KEY",
     environment: "sandbox",
     companyId: 0, // Your Avalara company ID
     companyCode: "DEFAULT",
-  },
-  taxCodes: {
-    shipping: "FR020100",
-    default: "PC040100", // Clothing and related products (business-to-customer)-general
-  },
+    defaultTaxCode: "PC040100", // Clothing and related products (business-to-customer)-general
+
 };
 
 module.exports = defineConfig(
@@ -127,29 +124,22 @@ After starting your Medusa server:
 
 ## Configuration Options
 
-### Client Options (`client`)
-
 Access your Avalara dashboard to obtain the required credentials:
 
 - **Production**: https://admin.avalara.com/
 - **Sandbox**: https://sandbox.admin.avalara.com/
 
-| Option                     | Type                        | Required | Default | Description                                                                                                              |
-| -------------------------- | --------------------------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `accountId`                | `number`                    | ✅       | -       | Your Avalara account ID                                                                                                  |
-| `licenseKey`               | `string`                    | ✅       | -       | Your Avalara license key                                                                                                 |
-| `environment`              | `"sandbox" \| "production"` | ✅       | -       | AvaTax environment                                                                                                       |
-| `companyCode`              | `string`                    | ✅       | -       | Your company code in AvaTax                                                                                              |
-| `companyId`                | `number`                    | ✅       | -       | Your Avalara company ID                                                                                                  |
-| `documentRecordingEnabled` | `boolean`                   | ❌       | `true`  | Controls whether documents should be recorded in AvaTax. If set to `false` transactions (sales invoices) are not created |
-| `machineName`              | `string`                    | ❌       | -       | Machine identifier                                                                                                       |
-
-### Tax Codes (`taxCodes`)
-
-| Option     | Type     | Required | Default      | Description                   |
-| ---------- | -------- | -------- | ------------ | ----------------------------- |
-| `default`  | `string` | ❌       | `"P0000000"` | Default tax code for products |
-| `shipping` | `string` | ❌       | `"FR020100"` | Tax code for shipping         |
+| Option                     | Type                        | Required | Default      | Description                                                                                                              |
+| -------------------------- | --------------------------- | -------- | ------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| `accountId`                | `number`                    | ✅       | -            | Your Avalara account ID                                                                                                  |
+| `licenseKey`               | `string`                    | ✅       | -            | Your Avalara license key                                                                                                 |
+| `environment`              | `"sandbox" \| "production"` | ✅       | -            | AvaTax environment                                                                                                       |
+| `companyCode`              | `string`                    | ✅       | -            | Your company code in AvaTax                                                                                              |
+| `companyId`                | `number`                    | ✅       | -            | Your Avalara company ID                                                                                                  |
+| `documentRecordingEnabled` | `boolean`                   | ❌       | `true`       | Controls whether documents should be recorded in AvaTax. If set to `false` transactions (sales invoices) are not created |
+| `machineName`              | `string`                    | ❌       | -            | Machine identifier                                                                                                       |
+| `defaultTaxCode`           | `string`                    | ❌       | -            | Default tax code for products                                                                                            |
+| `shippingTaxCode`          | `string`                    | ❌       | `"FR020100"` | Tax code for shipping                                                                                                    |
 
 ## Advanced Usage
 

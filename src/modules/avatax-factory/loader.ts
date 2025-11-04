@@ -27,11 +27,11 @@ export default async function avataxFactoryLoader({
     throw new Error("AvaTax plugin options are invalid");
   }
 
-  const client = new AvataxClientFactory(logger, options.client).getClient();
+  const client = new AvataxClientFactory(logger, options).getClient();
   const connectionValidator = new AvataxConnectionValidator(
     logger,
     client,
-    options.client
+    options
   );
   await connectionValidator.validateConnection();
 

@@ -1,8 +1,8 @@
 import AvaTaxClient from "avatax";
 import { LogLevel } from "avatax/lib/utils/logger";
 import { Logger } from "@medusajs/framework/types";
-import { AvataxClientOptions } from "../types";
 import { getPackageVersion } from "../utils";
+import { AvalaraPluginOptions } from "../types";
 
 export class AvataxClientFactory {
   private client: AvaTaxClient;
@@ -10,7 +10,7 @@ export class AvataxClientFactory {
 
   constructor(
     private readonly logger: Logger,
-    private readonly options: AvataxClientOptions
+    private readonly options: AvalaraPluginOptions
   ) {
     this.pluginVersion = getPackageVersion(this.logger);
     this.initializeClient();

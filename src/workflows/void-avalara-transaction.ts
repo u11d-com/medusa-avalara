@@ -21,7 +21,9 @@ const voidAvalaraTransactionStep = createStep(
       AVATAX_FACTORY_MODULE
     );
 
-    if (factory.getOptions().client.documentRecordingEnabled === false) {
+    const { companyCode, documentRecordingEnabled } = factory.getOptions();
+
+    if (documentRecordingEnabled === false) {
       logger.info(
         `Skipping Avalara transaction void for order ${orderId} - document recording is disabled`
       );
@@ -33,7 +35,7 @@ const voidAvalaraTransactionStep = createStep(
 
       const client = factory.getClient();
       await client.voidTransaction({
-        companyCode: factory.getCompanyCode(),
+        companyCode,
         model: {
           code: VoidReasonCode.Unspecified,
         },

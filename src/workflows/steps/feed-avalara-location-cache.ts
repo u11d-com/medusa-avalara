@@ -32,7 +32,7 @@ export const feedAvalaraLocationCacheStep = createStep(
       const client = avataxFactory.getClient();
       const options = avataxFactory.getOptions();
       const converter = avataxFactory.getConverter();
-      const companyId = options.client.companyId;
+      const companyId = options.companyId;
 
       const stockLocations = await locationService.listStockLocations(
         {},

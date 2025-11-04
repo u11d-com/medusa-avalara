@@ -27,10 +27,6 @@ export class AvataxFactoryService extends MedusaService({}) {
     return this.converter;
   }
 
-  getCompanyCode(): string {
-    return this.options.client.companyCode;
-  }
-
   getOptions(): AvalaraPluginOptions {
     return this.options;
   }

@@ -36,17 +36,13 @@ export class AvataxTaxProvider implements ITaxProvider {
     this.logger = container.logger;
     this.cache = container.cache;
 
-    if (!this.options.taxCodes) {
-      this.options.taxCodes = {};
-    }
-
-    if (!this.options.taxCodes.shipping) {
-      this.options.taxCodes.shipping = "FR020100";
+    if (!this.options.shippingTaxCode) {
+      this.options.shippingTaxCode = "FR020100";
     }
 
     this.client = new AvataxClientFactory(
       this.logger,
-      this.options.client
+      this.options
     ).getClient();
     this.converter = new AvataxConverter(this.cache, this.logger, this.options);
 
