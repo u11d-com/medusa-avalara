@@ -102,6 +102,7 @@ module.exports = defineConfig(
 > - The plugin automatically syncs your Medusa stock locations with Avalara locations on startup for accurate tax calculations. However, since Medusa doesn't emit events for stock location changes, if you create or update a location after startup, you'll need to either restart the app or manually call `POST /admin/avalara-cache/feed` to refresh the cache
 > - The plugin fully supports tax-inclusive pricing and automatically respects the region's tax-inclusive preferences
 > - The region's `Automatic Taxes` configuration is critical for API efficiency. When enabled, Medusa calls the tax provider's `getTaxLines` method multiple times during the checkout flow (on shipping address updates, shipping method selection, etc.), which significantly increases the number of requests to the Avalara API. To optimize performance and reduce API calls, it's recommended to disable automatic taxes and instead manually trigger tax calculation by calling [POST `/store/carts/{id}/taxes`](https://docs.medusajs.com/api/store#carts_postcartsidtaxes) from your storefront when the order is ready for review — typically after the shipping method has been selected.
+> - Discounts should be used with caution. Medusa does not use the exact tax amounts returned by Avalara but instead calculates taxes using the rates provided, which may lead to minor differences in final tax calculations when discounts are applied.
 
 ### 3. Run Database Migration
 
