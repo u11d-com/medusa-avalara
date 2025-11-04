@@ -314,6 +314,13 @@ The Medusa Avalara plugin integrates with Avalara's AvaTax service through a mod
 - Used by the `/admin/avalara-products` API endpoint
 - Saves mapping of `product_id` → `avalara_tax_code` in cache for fast retrieval by the AvaTax provider
 
+**modules/avalara-customer**
+
+- Manages customer-specific tax exemptions through the `AvalaraCustomer` model and database migration
+- Used by the `/admin/avalara-customers` API endpoint
+- Saves mapping of `customer_id` → `entity_use_code` in cache for fast retrieval by the AvaTax provider
+- Validates entity use codes against Avalara's predefined list and provides warnings for unrecognized codes
+
 **modules/avatax-factory**
 
 - Provides AvaTax client configured with plugin options
@@ -337,6 +344,46 @@ The Medusa Avalara plugin integrates with Avalara's AvaTax service through a mod
 - **orderCompletedHandler**: Commits the transaction in Avalara
 
 This architecture ensures accurate tax calculations during checkout and proper transaction lifecycle management in Avalara's system. The `withAvalaraPlugin` wrapper simplifies the setup by automatically configuring all these modules with proper dependencies and isolation.
+
+### Cached Data
+
+The plugin uses Redis cache to store frequently accessed data for optimal performance during tax calculations. This cache strategy minimizes database queries and API calls, ensuring fast response times during checkout.
+
+**Product Tax Codes** (`avalara:product:{product_id}`)
+
+- Stores the mapping of Medusa product IDs to Avalara tax codes
+- Fed by the `feed-avalara-product-cache` workflow step
+- Retrieved during tax calculations to determine the appropriate tax code for each line item
+- Falls back to `taxCodes.default` if no product-specific code is found
+
+**Customer Exemptions** (`avalara:customer:{customer_id}`)
+
+- Stores entity use codes for tax-exempt customers
+- Fed by the `feed-avalara-customer-cache` workflow step
+- Retrieved during tax calculations to apply exemptions when applicable
+- Enables quick lookup of customer tax exemption status without database queries
+
+**Tax-Inclusive Settings** (`avalara:tax_included:{country_code}`)
+
+- Stores whether prices are tax-inclusive for each country
+- Fed by the `feed-avalara-tax-inclusive-cache` workflow step
+- Based on region price preferences configured in Medusa
+- Critical for correctly calculating taxes in regions with tax-inclusive pricing
+
+**Location Mappings** (`avalara:location:{country_code}` and `avalara:location:{country_code}_{province_code}`)
+
+- Stores the mapping of geographic locations to Avalara location codes and addresses
+- Fed by the `feed-avalara-location-cache` workflow step
+- Syncs Medusa stock locations with Avalara locations for accurate origin-based tax calculations
+- Supports both country-level and province/state-level location mappings for precise nexus determination
+
+**Cache Management:**
+
+- All cache entries use a 30-day TTL (Time To Live)
+- The cache is automatically populated on application startup through the `init-feed-avalara-cache` job
+- The cache is automatically refreshed every night at midnight via the `feed-avalara-cache` scheduled job
+- Cache can be manually refreshed anytime via the `POST /admin/avalara-cache/feed` endpoint
+- Individual module caches are also refreshed after bulk updates via their respective admin endpoints (e.g., after updating product tax codes or customer exemptions)
 
 ## Troubleshooting
 
