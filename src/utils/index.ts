@@ -6,4 +6,5 @@ export * from "./get-package-version";
 export * from "./has-address-changed";
 export * from "./is-valid-entity-use-code";
 export * from "./log-workflow-results";
+export * from "./pagination-schema";
 export * from "./with-avalara-plugin";

@@ -58,14 +58,6 @@ export class AvalaraCustomerModuleService extends MedusaService({
     for (const customerData of avalara_customers) {
       const { customer_id, entity_use_code } = customerData;
 
-      if (!customer_id || !entity_use_code) {
-        results.push({
-          customer_id,
-          error: "Both customer_id and entity_use_code are required",
-        });
-        continue;
-      }
-
       try {
         const avalaraCustomer = await this.upsertAvalaraCustomer(
           customer_id,

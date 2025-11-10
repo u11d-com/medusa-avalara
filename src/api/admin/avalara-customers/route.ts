@@ -6,13 +6,17 @@ import {
 } from "../../../modules/avalara-customer/service";
 import { AVALARA_CUSTOMER_MODULE } from "../../../modules/avalara-customer";
 import feedAvalaraCustomerCacheWorkflow from "../../../workflows/feed-avalara-customer-cache";
+import { z } from "zod";
+import {
+  GetAvalaraCustomersSchema,
+  PutAvalaraCustomersSchema,
+} from "./validators";
 
-type BulkUpdateAvalaraCustomerRequest = {
-  avalara_customers: BulkUpdateRequest[];
-};
+type GetAvalaraCustomersType = z.infer<typeof GetAvalaraCustomersSchema>;
+type PutAvalaraCustomersType = z.infer<typeof PutAvalaraCustomersSchema>;
 
 export async function GET(
-  req: MedusaRequest,
+  req: MedusaRequest<GetAvalaraCustomersType>,
   res: MedusaResponse
 ): Promise<void> {
   const avalaraCustomerModuleService: AvalaraCustomerModuleService =
@@ -20,8 +24,7 @@ export async function GET(
   const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER);
 
   try {
-    const offset = Number(req.query.offset || 0);
-    const limit = Number(req.query.limit || 10);
+    const { offset, limit } = req.validatedQuery;
 
     logger.debug(
       `GET /admin/avalara-customers - Retrieving avalara customers with offset: ${offset}, limit: ${limit}`
@@ -60,14 +63,14 @@ export async function GET(
 }
 
 export async function PUT(
-  req: MedusaRequest<BulkUpdateAvalaraCustomerRequest>,
+  req: MedusaRequest<PutAvalaraCustomersType>,
   res: MedusaResponse
 ): Promise<void> {
   const avalaraCustomerModuleService: AvalaraCustomerModuleService =
     req.scope.resolve(AVALARA_CUSTOMER_MODULE);
   const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER);
 
-  const { avalara_customers } = req.body;
+  const { avalara_customers } = req.validatedBody;
 
   logger.debug(
     `PUT /admin/avalara-customers - Starting bulk update for ${
