@@ -60,15 +60,6 @@ export class AvalaraProductModuleService extends MedusaService({
 
     for (const productData of avalara_products) {
       const { product_id, tax_code } = productData;
-
-      if (!product_id || !tax_code) {
-        results.push({
-          product_id,
-          error: "Both product_id and tax_code are required",
-        });
-        continue;
-      }
-
       try {
         const avalaraProduct = await this.upsertAvalaraProduct(
           product_id,

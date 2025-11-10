@@ -6,13 +6,17 @@ import {
 import { AVALARA_PRODUCT_MODULE } from "../../../modules/avalara-product";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import feedAvalaraProductCacheWorkflow from "../../../workflows/feed-avalara-product-cache";
+import { z } from "zod";
+import {
+  GetAvalaraProductsSchema,
+  PutAvalaraProductsSchema,
+} from "./validators";
 
-type BulkUpdateAvalaraProductRequest = {
-  avalara_products: BulkUpdateRequest[];
-};
+type GetAvalaraProductsType = z.infer<typeof GetAvalaraProductsSchema>;
+type PutAvalaraProductsType = z.infer<typeof PutAvalaraProductsSchema>;
 
 export async function GET(
-  req: MedusaRequest,
+  req: MedusaRequest<GetAvalaraProductsType>,
   res: MedusaResponse
 ): Promise<void> {
   const avalaraProductModuleService: AvalaraProductModuleService =
@@ -20,8 +24,7 @@ export async function GET(
   const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER);
 
   try {
-    const offset = Number(req.query.offset || 0);
-    const limit = Number(req.query.limit || 10);
+    const { offset, limit } = req.validatedQuery;
 
     logger.debug(
       `GET /admin/avalara-products - Retrieving avalara products with offset: ${offset}, limit: ${limit}`
@@ -57,14 +60,14 @@ export async function GET(
 }
 
 export async function PUT(
-  req: MedusaRequest<BulkUpdateAvalaraProductRequest>,
+  req: MedusaRequest<PutAvalaraProductsType>,
   res: MedusaResponse
 ): Promise<void> {
   const avalaraProductModuleService: AvalaraProductModuleService =
     req.scope.resolve(AVALARA_PRODUCT_MODULE);
   const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER);
 
-  const { avalara_products } = req.body;
+  const { avalara_products } = req.validatedBody;
 
   logger.debug(
     `PUT /admin/avalara-products - Starting bulk update for ${

@@ -2,10 +2,13 @@ import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import { AVATAX_FACTORY_MODULE } from "../../../modules/avatax-factory";
 import { AvataxFactoryService } from "../../../modules/avatax-factory/service";
-import { AddressValidationInfo } from "avatax/models";
+import { z } from "zod";
+import { PostAvalaraAddressSchema } from "./validators";
+
+type PostAvalaraAddressType = z.infer<typeof PostAvalaraAddressSchema>;
 
 export async function POST(
-  req: MedusaRequest<AddressValidationInfo>,
+  req: MedusaRequest<PostAvalaraAddressType>,
   res: MedusaResponse
 ): Promise<void> {
   const avataxFactoryService: AvataxFactoryService = req.scope.resolve(
@@ -13,38 +16,13 @@ export async function POST(
   );
   const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER);
 
-  const { line1, city, region, country } = req.body;
+  const addressData = req.validatedBody;
 
   logger.debug(
     `POST /store/avalara-address/validate - Validating address: ${JSON.stringify(
-      req.body
+      addressData
     )}`
   );
-
-  if (!line1 || !city || !country) {
-    logger.error(
-      "POST /store/avalara-address/validate - Missing required fields (line1, city, country)"
-    );
-    res.status(400).json({
-      error: "Missing required fields",
-      address: req.body,
-      details:
-        "The following fields are required: line1, city, and country. For US addresses, region is also required.",
-    });
-    return;
-  }
-
-  if (country.toLowerCase() === "us" && !region) {
-    logger.error(
-      "POST /store/avalara-address/validate - Missing region for US address"
-    );
-    res.status(400).json({
-      address: req.body,
-      error: "Missing required field",
-      details: "For US addresses, the region (state) field is required.",
-    });
-    return;
-  }
 
   try {
     const client = avataxFactoryService.getClient();
@@ -54,7 +32,7 @@ export async function POST(
     );
 
     const result = await client.resolveAddressPost({
-      model: req.body,
+      model: addressData,
     });
 
     logger.debug(
