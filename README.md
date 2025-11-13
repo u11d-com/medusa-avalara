@@ -89,15 +89,27 @@ module.exports = defineConfig(
 );
 ```
 
+## Recommended Checkout Workflow
+
+For accurate tax calculations and optimal API efficiency, we recommend the following checkout workflow:
+
+1. **Customer enters shipping address** - Address is captured but taxes are not yet calculated
+2. **Customer selects shipping method** - Shipping option is chosen
+3. **Trigger tax calculation** - Storefront calls `POST /store/carts/{id}/taxes` ([API docs](https://docs.medusajs.com/api/store#carts_postcartsidtaxes)) to calculate accurate taxes with complete cart information
+4. **Customer reviews order** - Final amounts including taxes are displayed
+5. **Complete checkout** - Order is placed with correct tax calculations
+
+**Why this workflow?** The plugin operates as a tax provider within Medusa's framework and is invoked whenever Medusa triggers tax calculations. The plugin cannot modify Medusa's core checkout flow or enforce when taxes are calculated. By following this workflow and disabling "Automatic Taxes" in your region settings, you control exactly when tax calculations occur, ensuring they happen only after all necessary information (address and shipping method) is available.
+
 > **Important Notes:**
 >
-> - It's strongly recommended to call `POST /store/carts/${cartId}/taxes` ([docs](https://docs.medusajs.com/api/store#carts_postcartsidtaxes)) before checkout to ensure taxes are recalculated correctly. Medusa doesn't automatically recalculate taxes when cart properties change (quantity, address, discounts), which can lead to incorrect amounts. See [issue #13929](https://github.com/medusajs/medusa/issues/13929)
+> - **Automatic Taxes Setting**: The region's `Automatic Taxes` configuration significantly impacts API efficiency. When enabled, Medusa automatically calls the tax provider multiple times during checkout (on address changes, shipping method selection, etc.), increasing Avalara API requests. For better performance and cost control, **disable automatic taxes** and manually trigger calculations via `POST /store/carts/{id}/taxes` after the shipping method is selected.
+> - **Tax Recalculation**: Medusa doesn't automatically recalculate taxes when cart properties change (quantity, address, discounts). Always call `POST /store/carts/${cartId}/taxes` before checkout to ensure accurate amounts. See [issue #13929](https://github.com/medusajs/medusa/issues/13929)
 > - The `withAvalaraPlugin` wrapper handles plugin modules registration and dependency injection automatically. See [Manual Module Registration](#manual-module-registration) section if you need to understand what the helper does or configure modules manually
 > - You can use environment variables instead of hardcoding options, especially important for credentials like `accountId` and `licenseKey`
 > - The example above will use `PC040100` for each product. See [Advanced Usage](#advanced-usage) for assigning specific tax codes to individual products
 > - The plugin automatically syncs your Medusa stock locations with Avalara locations on startup for accurate tax calculations. However, since Medusa doesn't emit events for stock location changes, if you create or update a location after startup, you'll need to either restart the app or manually call `POST /admin/avalara-cache/feed` to refresh the cache
 > - The plugin fully supports tax-inclusive pricing and automatically respects the region's tax-inclusive preferences
-> - The region's `Automatic Taxes` configuration is critical for API efficiency. When enabled, Medusa calls the tax provider's `getTaxLines` method multiple times during the checkout flow (on shipping address updates, shipping method selection, etc.), which significantly increases the number of requests to the Avalara API. To optimize performance and reduce API calls, it's recommended to disable automatic taxes and instead manually trigger tax calculation by calling [POST `/store/carts/{id}/taxes`](https://docs.medusajs.com/api/store#carts_postcartsidtaxes) from your storefront when the order is ready for review — typically after the shipping method has been selected.
 > - Discounts should be used with caution. Medusa does not use the exact tax amounts returned by Avalara but instead calculates taxes using the rates provided, which may lead to minor differences in final tax calculations when discounts are applied.
 
 ### 3. Run Database Migration
