@@ -345,6 +345,8 @@ The Medusa Avalara plugin integrates with Avalara's AvaTax service through a mod
 - **orderCanceledHandler**: Voids the transaction in Avalara
 - **orderCompletedHandler**: Commits the transaction in Avalara
 
+**Important Note on Voiding Transactions:** A document can be voided only if it has not yet been locked or reported in a tax filing period. Once a document has been reported (filed) or the filing period is locked, it cannot be voided directly through the API. In such case the plugin will log an error and you must create an adjustment (return invoice) manually in Avalara to offset the original document.
+
 This architecture ensures accurate tax calculations during checkout and proper transaction lifecycle management in Avalara's system. The `withAvalaraPlugin` wrapper simplifies the setup by automatically configuring all these modules with proper dependencies and isolation.
 
 ### Cached Data
