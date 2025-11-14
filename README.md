@@ -188,13 +188,13 @@ curl -X PUT http://localhost:9000/admin/avalara-products \
 
 ### Customer Tax Exemptions (Entity Use Codes)
 
-Many businesses need to support tax-exempt customers such as government entities, non-profit organizations, or resellers. The plugin provides a complete system for managing customer exemptions through Avalara's Entity Use Codes.
+Many businesses need to support tax-exempt customers such as government entities, non-profit organizations, or resellers. The plugin provides a complete system for managing customer exemptions using [Avalara's Entity Use Codes](https://help.avalara.com/Avalara_AvaTax_Update/Entity_Use_Codes).
 
-You can find the complete list of predefined Avalara entity use codes at: https://help.avalara.com/Avalara_AvaTax_Update/Entity_Use_Codes
+For the complete list of predefined entity use codes, refer to the official Avalara [documentation](https://knowledge.avalara.com/bundle/rpb1660904325464_rpb1660904325464/page/List_of_entity_use_codes.html).
 
 #### Managing Customer Exemptions
 
-The plugin automatically manages customer exemptions through the `avalara_customer` module, which stores entity use codes for exempt customers and caches them for fast lookup during tax calculations.
+The plugin manages customer exemptions through the `avalara_customer` module, which stores entity use codes for exempt customers and caches them for fast lookup during tax calculations.
 
 **Setting Customer Exemptions:**
 
