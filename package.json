@@ -1,6 +1,6 @@
 {
   "name": "@u11d/medusa-avalara",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Medusa plugin for integrating Avalara AvaTax as a tax provider, enabling automated tax calculations and compliance for e-commerce transactions.",
   "author": "u11d <hello@u11d.com> (https://u11d.com)",
   "license": "MIT",
