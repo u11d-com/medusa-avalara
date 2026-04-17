@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  A <a href="https://www.medusajs.com">Medusa</a> plugin for integrating <a href="https://www.avalara.com">Avalara AvaTax</a> as a tax provider, enabling automated tax calculations and compliance for your e-commerce store. Created and maintained by <a href="https://u11d.com">u11d</a>.
+  A <a href="https://www.medusajs.com">Medusa</a> plugin for integrating <a href="https://www.avalara.com">Avalara AvaTax</a> as a tax provider, enabling automated tax calculations and compliance for your e-commerce store. Created and maintained by <a href="https://u11d.com">u11d</a>. Officially certified by Avalara.
 </p>
 
 <p align="center">
@@ -84,8 +84,8 @@ module.exports = defineConfig(
         // your modules
       ],
     },
-    avalaraPluginOptions
-  )
+    avalaraPluginOptions,
+  ),
 );
 ```
 
