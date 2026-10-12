@@ -37,7 +37,7 @@ const voidAvalaraTransactionStep = createStep(
       await client.voidTransaction({
         companyCode,
         model: {
-          code: VoidReasonCode.Unspecified,
+          code: VoidReasonCode.DocVoided,
         },
         transactionCode: orderId,
         documentType: DocumentType.SalesInvoice,
